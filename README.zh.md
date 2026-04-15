@@ -2,6 +2,8 @@
 
 <div align="center">
 
+<img src="logo.svg" width="120" height="120" alt="Sextant Logo"/>
+
 <h1>Sextant</h1>
 
 <p><strong>一个让你在 AI 编码的不确定海域里判断自己在哪的工程心智框架</strong></p>

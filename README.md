@@ -2,6 +2,8 @@
 
 <div align="center">
 
+<img src="logo.svg" width="120" height="120" alt="Sextant Logo"/>
+
 <h1>Sextant</h1>
 
 <p><strong>An engineering mindset framework that tells you where you are when coding with AI.</strong></p>
