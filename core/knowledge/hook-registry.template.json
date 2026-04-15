@@ -1,0 +1,34 @@
+{
+    "$schema": "https://sextant.dev/schemas/hook-registry/v1",
+    "version": "1",
+    "hooks": [
+        {
+            "id": "example-no-console-log",
+            "description": "Prevent console.log from being committed in production code",
+            "trigger": "pre-commit",
+            "check_type": "regex",
+            "pattern_or_command": "console\\.log\\(",
+            "target_paths": ["src/"],
+            "error_message": "console.log found in src/ — remove before committing",
+            "created_from_lesson": "YYYY-MM-DD: console.log left in payment handler caused log noise in prod"
+        },
+        {
+            "id": "example-migration-requires-l2",
+            "description": "Block commits containing migration files unless task is classified L2",
+            "trigger": "pre-commit",
+            "check_type": "file-exists",
+            "pattern_or_command": "db/migrations/*.sql",
+            "target_paths": [],
+            "error_message": "Migration file detected — ensure task is classified L2 and reviewed",
+            "created_from_lesson": "YYYY-MM-DD: schema change merged without reviewer approval broke staging"
+        }
+    ],
+    "_instructions": [
+        "Remove the example entries above and add your own hooks.",
+        "Each hook must have a 'created_from_lesson' that references an actual incident.",
+        "Do not add hooks speculatively — only add them after a real failure or near-miss.",
+        "trigger values: pre-commit | pre-push | pre-build | on-stage-gate",
+        "check_type values: regex | file-exists | shell",
+        "For check_type 'shell': pattern_or_command is a shell command; exit 0 = pass, non-zero = fail"
+    ]
+}

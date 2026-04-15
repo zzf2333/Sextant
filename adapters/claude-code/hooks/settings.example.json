@@ -1,0 +1,24 @@
+{
+    "_note": "These are example Sextant hooks for Claude Code settings.json. Copy the 'hooks' array entries into your ~/.claude/settings.json or <project>/.claude/settings.json. Do NOT enable these in the Sextant repo itself — they are intended for projects that use Sextant.",
+    "hooks": [
+        {
+            "event": "Stop",
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": "echo '\n[Sextant] Session ending. If you completed a Build stage, run /sextant-verify before closing. If Verify passed, run /sextant-record to close the task.'"
+                }
+            ]
+        },
+        {
+            "event": "PreToolUse",
+            "hooks": [
+                {
+                    "type": "command",
+                    "matcher": "Bash",
+                    "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'git commit'; then TASK_DIR=$(ls -dt .sextant/traces/*/  2>/dev/null | head -1); if [ -n \"$TASK_DIR\" ]; then REVIEW=\"${TASK_DIR}review-build.md\"; if [ ! -f \"$REVIEW\" ]; then echo '[Sextant WARNING] No build review found. Run /sextant-verify before committing.'; elif ! grep -q 'deletion_proposals' \"$REVIEW\"; then echo '[Sextant WARNING] review-build.md is missing the deletion_proposals field. Review artifact is malformed.'; fi; fi; fi"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+<!-- Sextant integration — append this to your project's CLAUDE.md -->
+
+## Sextant Engineering Protocol
+
+This project uses [Sextant](https://github.com/SaoNian/Sextant) — an engineering mindset framework
+that constrains AI coding behavior to a clearer, more verifiable path.
+
+### Flow
+
+Every non-trivial task follows: **Spec → Plan → Build → Verify → Record**
+
+Use these slash commands to drive each stage:
+- `/sextant-spec` — define scope, constraints, and acceptance criteria
+- `/sextant-plan` — produce the minimal implementation approach
+- `/sextant-build` — implement strictly within the approved plan
+- `/sextant-verify` — run tools + adversarial review
+- `/sextant-record` — write back knowledge and close the task
+
+### Task Classification
+
+Tasks are automatically classified as L0 / L1 / L2. Use `--force-l0/l1/l2` to override.
+L2 tasks (data model, auth, payment, sync) require reviewer approval at all stages.
+
+### Knowledge Files
+
+This project maintains four Sextant knowledge files. Read them at task start:
+- `SEXTANT.md` — current tech stack, defaults, explicit non-goals
+- `modules/*/EVOLUTION.md` — module-level design history
+- `PROJECT_EVOLUTION_LOG.md` — project-level architectural decisions
+- `hook-registry.json` — mechanically enforceable rules
+
+Do not start a task without reading `SEXTANT.md` first.
+
+### Reviewer Rule
+
+The reviewer role has one non-negotiable constraint: every review output must contain a
+`deletion_proposals` field. If nothing qualifies for deletion, write `none` explicitly.
