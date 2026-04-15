@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.1-3b82f6?style=flat-square" alt="v0.0.1"/>
+  <img src="https://img.shields.io/badge/version-0.0.1-3b82f6?style=flat-square" alt="v0.0.2"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -138,21 +138,25 @@ cd Sextant
 cat adapters/claude-code/CLAUDE.md.snippet >> /path/to/your-project/CLAUDE.md
 ```
 
-Then in Claude Code within your project:
+Then run the 5-phase pipeline for each task in Claude Code:
 
 ```
-/sextant-spec     # Define scope and acceptance criteria
+/sextant-spec     # Load project knowledge → define scope and acceptance criteria
 /sextant-plan     # Choose the minimal implementation approach
 /sextant-build    # Implement within the approved plan
 /sextant-verify   # Run tools + adversarial review
-/sextant-record   # Write back knowledge, close the task
+/sextant-record   # Write back knowledge → close the task
 ```
+
+Repeat from `/sextant-spec` for the next task. Each `record` updates the project knowledge
+files (`SEXTANT.md`, `EVOLUTION.md`, `hook-registry.json`); the next `spec` loads them —
+this is the loop that prevents context amnesia across sessions.
 
 ---
 
 ## Status
 
-**v0.0.1** — Core text layer and Claude Code adapter complete.
+**v0.0.2** — Core text layer and Claude Code adapter complete.
 
 | Component               | Status                                                 |
 | ----------------------- | ------------------------------------------------------ |

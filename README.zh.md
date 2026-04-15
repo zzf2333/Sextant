@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.1-3b82f6?style=flat-square" alt="v0.0.1"/>
+  <img src="https://img.shields.io/badge/version-0.0.1-3b82f6?style=flat-square" alt="v0.0.2"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -138,21 +138,25 @@ cd Sextant
 cat adapters/claude-code/CLAUDE.md.snippet >> /path/to/your-project/CLAUDE.md
 ```
 
-在 Claude Code 中使用：
+在 Claude Code 中，对每个任务运行 5 阶段流程：
 
 ```
-/sextant-spec     # 定义任务范围和验收标准
+/sextant-spec     # 加载项目知识 → 定义任务范围和验收标准
 /sextant-plan     # 给出最小可行实现方案
 /sextant-build    # 在批准方案内实施
 /sextant-verify   # 跑工具链 + 对抗审查
-/sextant-record   # 写回知识，关闭任务
+/sextant-record   # 写回知识 → 关闭任务
 ```
+
+下一个任务从 `/sextant-spec` 重新开始。每次 `record` 会更新项目知识文件
+（`SEXTANT.md`、`EVOLUTION.md`、`hook-registry.json`）；下一次 `spec` 会加载这些文件——
+这就是防止跨会话、跨任务上下文失忆的知识循环。
 
 ---
 
 ## 当前状态
 
-**v0.0.1** — Core 文本层与 Claude Code adapter 已完成。
+**v0.0.2** — Core 文本层与 Claude Code adapter 已完成。
 
 | 组件                    | 状态                                                         |
 | ----------------------- | ------------------------------------------------------------ |
