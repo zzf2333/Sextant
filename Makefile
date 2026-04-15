@@ -1,4 +1,4 @@
-.PHONY: test test-structure test-bootstrap test-install test-json test-release
+.PHONY: test test-structure test-bootstrap test-install test-json test-release test-cli
 
 # Run all tests
 test:
@@ -19,3 +19,6 @@ test-json:
 
 test-release:
 	@bash tests/test-release.sh
+
+test-cli:
+	@bash tests/test-cli.sh

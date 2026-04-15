@@ -11,6 +11,7 @@ Complete the P5 writebacks checklist before closing the task.
 task_id: ""              # must match the spec's task_id
 completed_at: ""         # ISO datetime
 task_level: L0 | L1 | L2
+record_version: 1        # increment if record is amended after initial submission
 ```
 
 ---

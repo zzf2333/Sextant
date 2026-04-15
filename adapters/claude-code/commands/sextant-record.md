@@ -5,6 +5,10 @@
 Runs the Record stage for the current task. Completes the P5 writebacks checklist and
 updates knowledge files. Closes the task trace.
 
+This stage closes the knowledge loop: what gets written here is what the next task's
+`/sextant-spec` will load. Write entries that are useful to a future task, not just a
+summary of what was done.
+
 ## Usage
 
 ```
@@ -15,8 +19,8 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 ## Workflow
 
-1. **Gate 4 check**: Verify `.sextant/traces/<task_id>/review-build.md` exists with
-   `verdict: approved`. If gate is not passed, print the failure reason and stop.
+1. **Gate 4 check**: Follow `core/snippets/check-upstream-gate.md` with `stage=build`.
+   Stop if the check fails.
 
 2. **Present P5 checklist** and ask the user to answer each question:
 
@@ -35,6 +39,13 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
    apply it to the appropriate file. Use `Read` to load the current file content, then `Edit`
    to apply the update.
 
+   Write entries that would change a future task's judgment — be specific about what changed
+   and why, not just what was done. Vague summaries ("added auth feature") are useless to
+   future Spec. Useful entries state the constraint, the trade-off accepted, or the path
+   that was rejected and why.
+
+   These entries are exactly what the next `/sextant-spec` will load as context.
+
 4. **Build record artifact**: Create a filled `record` following `core/templates/record.md`
    with the checklist answers and writeback entries (or `skip_reason` if all "no").
    Write to `.sextant/traces/<task_id>/record.md`
@@ -48,4 +59,6 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
    ```
    Task <task_id> complete.
    Level: L1 | Writebacks: 2 | Trace: .sextant/traces/<task_id>/
+
+   Knowledge updated. The next /sextant-spec will load these changes as context.
    ```

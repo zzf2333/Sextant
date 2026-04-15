@@ -11,6 +11,7 @@ Every field is mandatory. See `core/roles/reviewer.md` for role constraints.
 stage: spec | plan | build          # which stage produced the artifact being reviewed
 reviewed_artifact_ref: ""           # path or identifier of the upstream artifact
 reviewer_session_id: ""             # a short unique id for this review session (e.g. task-id + stage)
+review_version: 1                   # increment when resubmitting after the upstream artifact changes
 ```
 
 ---

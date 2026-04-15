@@ -15,10 +15,8 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 ## Workflow
 
-1. **Gate 1 check**: Verify `.sextant/traces/<task_id>/spec.md` exists and contains a
-   reviewer-approved review artifact at `.sextant/traces/<task_id>/review-spec.md` with
-   `verdict: approved` or `verdict: approved-with-conditions` (all conditions resolved).
-   If gate is not passed, print the gate failure reason and stop.
+1. **Gate 1 check**: Follow `core/snippets/check-upstream-gate.md` with `stage=spec`.
+   Stop if the check fails.
 
 2. **Invoke `sextant-planner` subagent** with:
    - Path to the approved spec artifact

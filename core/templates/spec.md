@@ -11,6 +11,8 @@ Every field is mandatory. See `core/roles/spec.md` for role constraints.
 task_id: ""              # short identifier for this task (e.g. date-slug)
 request_summary: ""      # one-line restatement of the user's original request
 spec_version: 1          # increment when resubmitting after reviewer rejection
+forced_level: false      # true if task level was overridden via --force-l0/l1/l2
+override_reason: ""      # required when forced_level is true; explain why the override is justified
 ```
 
 ---

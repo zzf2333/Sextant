@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=65"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sextant"
+dynamic = ["version"]
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+sextant = "cli.main:main"
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
+
+[tool.setuptools.packages.find]
+include = ["cli*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/cli"]

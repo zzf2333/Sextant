@@ -21,6 +21,10 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 1. **Gate 3 check**: Verify `.sextant/traces/<task_id>/build-summary.md` exists with no
    unresolved `scope_creep_flags`. If gate is not passed, print the failure reason and stop.
 
+   **Lint pre-check**: Run `sextant lint <task_id>` before proceeding. If it exits with
+   code 1 (errors found), display the lint report and stop — do not invoke the reviewer
+   until lint passes. Warnings (exit 0) are displayed but do not block.
+
 2. **Layer 1 — Deterministic toolchain**:
    - Read the `verify_commands` from `SEXTANT.md` if present (e.g. `npm test`, `npx tsc`, `npm run lint`)
    - If no `verify_commands` in `SEXTANT.md`, ask the user: "What commands should I run to

@@ -15,9 +15,8 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 ## Workflow
 
-1. **Gate 2 check**: Verify `.sextant/traces/<task_id>/plan.md` exists and
-   `.sextant/traces/<task_id>/review-plan.md` has `verdict: approved`.
-   If gate is not passed, print the gate failure reason and stop.
+1. **Gate 2 check**: Follow `core/snippets/check-upstream-gate.md` with `stage=plan`.
+   Stop if the check fails.
 
 2. **Display plan summary**: Print the recommended candidate name, rationale summary,
    and engineering footprint from the approved plan.

@@ -16,3 +16,8 @@ modules/
 
 # Task trace data (runtime artifacts)
 .sextant/
+
+# Python build artifacts
+__pycache__/
+*.pyc
+*.egg-info/

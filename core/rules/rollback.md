@@ -21,6 +21,12 @@ forward. The goal is to return to the last known good state.
 
 2. **A rejected artifact must be versioned.** Increment `*_version` in the artifact metadata when
    resubmitting after rejection. This preserves the audit trail.
+   - `*_version` is a positive integer, starting at `1`.
+   - Increment by `+1` only when the artifact is resubmitted following a reviewer verdict of
+     `changes-requested` or `rejected`. Do not bump for formatting corrections or minor
+     clarifications that do not change the artifact's substance.
+   - Versioned artifact types: `spec_version`, `plan_version`, `review_version`,
+     `rca_version`, `record_version`. The `build-summary.md` is replaced, not versioned.
 
 3. **Rollback does not reset task level.** Task level only upgrades, never downgrades.
    A task classified L2 remains L2 after rollback, regardless of scope changes in the new plan.
