@@ -1,11 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500">
   <style>text { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }</style>
   <defs>
     <marker id="ap" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#9333ea"/></marker>
+    <marker id="write-ap" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#ea580c"/></marker>
+    <marker id="read-ap" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#2563eb"/></marker>
   </defs>
-  <rect width="960" height="400" fill="#ffffff"/>
+  <rect width="960" height="500" fill="#ffffff"/>
   <text x="480" y="30" text-anchor="middle" fill="#111827" font-size="16" font-weight="600">Sextant Workflow</text>
   <text x="480" y="50" text-anchor="middle" fill="#6b7280" font-size="12">Spec  →  Plan  →  Build  →  Verify  →  Record</text>
+  <!-- SPEC -->
   <rect x="60" y="70" width="148" height="275" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
   <rect x="60" y="70" width="148" height="38" rx="8" fill="#2563eb" stroke="none"/>
   <rect x="60" y="93" width="148" height="15" fill="#2563eb" stroke="none"/>
@@ -19,6 +22,7 @@
   <text x="134" y="248" text-anchor="middle" fill="#6b7280" font-size="10">open decisions</text>
   <rect x="70" y="315" width="128" height="20" rx="4" fill="#2563eb" opacity="0.15"/>
   <text x="134" y="329" text-anchor="middle" fill="#2563eb" font-size="10" font-weight="600">spec role</text>
+  <!-- PLAN -->
   <rect x="233" y="70" width="148" height="275" rx="8" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.5"/>
   <rect x="233" y="70" width="148" height="38" rx="8" fill="#7c3aed" stroke="none"/>
   <rect x="233" y="93" width="148" height="15" fill="#7c3aed" stroke="none"/>
@@ -32,6 +36,7 @@
   <text x="307" y="248" text-anchor="middle" fill="#6b7280" font-size="10">declared</text>
   <rect x="243" y="315" width="128" height="20" rx="4" fill="#7c3aed" opacity="0.15"/>
   <text x="307" y="329" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="600">planner role</text>
+  <!-- BUILD -->
   <rect x="406" y="70" width="148" height="275" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
   <rect x="406" y="70" width="148" height="38" rx="8" fill="#16a34a" stroke="none"/>
   <rect x="406" y="93" width="148" height="15" fill="#16a34a" stroke="none"/>
@@ -45,6 +50,7 @@
   <text x="480" y="248" text-anchor="middle" fill="#6b7280" font-size="10">before done</text>
   <rect x="416" y="315" width="128" height="20" rx="4" fill="#16a34a" opacity="0.15"/>
   <text x="480" y="329" text-anchor="middle" fill="#16a34a" font-size="10" font-weight="600">builder role</text>
+  <!-- VERIFY -->
   <rect x="579" y="70" width="148" height="275" rx="8" fill="#fefce8" stroke="#fef08a" stroke-width="1.5"/>
   <rect x="579" y="70" width="148" height="38" rx="8" fill="#ca8a04" stroke="none"/>
   <rect x="579" y="93" width="148" height="15" fill="#ca8a04" stroke="none"/>
@@ -58,6 +64,7 @@
   <text x="653" y="248" text-anchor="middle" fill="#6b7280" font-size="10">required</text>
   <rect x="589" y="315" width="128" height="20" rx="4" fill="#ca8a04" opacity="0.15"/>
   <text x="653" y="329" text-anchor="middle" fill="#ca8a04" font-size="10" font-weight="600">reviewer role</text>
+  <!-- RECORD -->
   <rect x="752" y="70" width="148" height="275" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5"/>
   <rect x="752" y="70" width="148" height="38" rx="8" fill="#ea580c" stroke="none"/>
   <rect x="752" y="93" width="148" height="15" fill="#ea580c" stroke="none"/>
@@ -71,13 +78,28 @@
   <text x="826" y="248" text-anchor="middle" fill="#6b7280" font-size="10">hook-registry</text>
   <rect x="762" y="315" width="128" height="20" rx="4" fill="#ea580c" opacity="0.15"/>
   <text x="826" y="329" text-anchor="middle" fill="#ea580c" font-size="10" font-weight="600">knowledge system</text>
+  <!-- Phase flow arrows -->
   <line x1="208" y1="205" x2="231" y2="205" stroke="#9333ea" stroke-width="2" marker-end="url(#ap)"/>
   <line x1="381" y1="205" x2="404" y2="205" stroke="#9333ea" stroke-width="2" marker-end="url(#ap)"/>
   <line x1="554" y1="205" x2="577" y2="205" stroke="#9333ea" stroke-width="2" marker-end="url(#ap)"/>
   <line x1="727" y1="205" x2="750" y2="205" stroke="#9333ea" stroke-width="2" marker-end="url(#ap)"/>
-  <rect x="60" y="360" width="840" height="30" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
-  <text x="185" y="379" text-anchor="middle" fill="#6b7280" font-size="11"><tspan font-weight="600" fill="#374151">L0</tspan>  micro-task → local verify + record</text>
-  <text x="480" y="379" text-anchor="middle" fill="#6b7280" font-size="11"><tspan font-weight="600" fill="#374151">L1</tspan>  standard task → full 5-phase flow</text>
-  <text x="775" y="379" text-anchor="middle" fill="#6b7280" font-size="11"><tspan font-weight="600" fill="#374151">L2</tspan>  high-risk → strict reviewer + rollback</text>
-  <text x="910" y="395" text-anchor="end" fill="#d1d5db" font-size="10">Sextant v0.0.1</text>
+  <!-- Knowledge feedback loop -->
+  <!-- Arrow: RECORD → Knowledge band (writes back) -->
+  <line x1="826" y1="346" x2="826" y2="361" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#write-ap)"/>
+  <text x="836" y="356" fill="#ea580c" font-size="9" text-anchor="start">writes back</text>
+  <!-- Knowledge System band -->
+  <rect x="60" y="363" width="840" height="52" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="480" y="382" text-anchor="middle" fill="#475569" font-size="11" font-weight="600">Knowledge System</text>
+  <text x="480" y="400" text-anchor="middle" fill="#94a3b8" font-size="10">SEXTANT.md  ·  modules/*/EVOLUTION.md  ·  PROJECT_EVOLUTION_LOG.md  ·  hook-registry.json</text>
+  <!-- Arrow: Knowledge band → SPEC (next task reads) -->
+  <line x1="134" y1="363" x2="134" y2="347" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#read-ap)"/>
+  <text x="144" y="356" fill="#2563eb" font-size="9" text-anchor="start">next task reads</text>
+  <!-- Loop label -->
+  <text x="480" y="432" text-anchor="middle" fill="#9ca3af" font-size="10">Record updates knowledge files — next Spec loads them, forming the loop across tasks</text>
+  <!-- Footer -->
+  <rect x="60" y="442" width="840" height="30" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="185" y="461" text-anchor="middle" fill="#6b7280" font-size="11"><tspan font-weight="600" fill="#374151">L0</tspan>  micro-task → local verify + record</text>
+  <text x="480" y="461" text-anchor="middle" fill="#6b7280" font-size="11"><tspan font-weight="600" fill="#374151">L1</tspan>  standard task → full 5-phase flow</text>
+  <text x="775" y="461" text-anchor="middle" fill="#6b7280" font-size="11"><tspan font-weight="600" fill="#374151">L2</tspan>  high-risk → strict reviewer + rollback</text>
+  <text x="910" y="495" text-anchor="end" fill="#d1d5db" font-size="10">Sextant v0.0.1</text>
 </svg>
