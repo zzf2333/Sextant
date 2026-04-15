@@ -276,7 +276,7 @@ def format_status(status: TaskStatus) -> str:
         f"Stage:   {status.current_stage}",
         "Artifacts:",
         *(_artifact_line(a) for a in status.artifacts),
-        f"Pending gate:     {status.pending_gate or ('none \u2014 task complete' if status.is_complete else 'none')}",
+        f"Pending gate:     {status.pending_gate or ('none — task complete' if status.is_complete else 'none')}",
         f"Rollback markers: {', '.join(status.rollback_markers) or 'none'}",
         f"Bypass markers:   {', '.join(status.bypass_markers) or 'none'}",
     ]
