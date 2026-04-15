@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480">
+  <style>text { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }</style>
+  <defs>
+    <marker id="ab" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#2563eb"/></marker>
+    <marker id="ap" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#7c3aed"/></marker>
+    <marker id="ar" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#dc2626"/></marker>
+    <marker id="ao" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#ea580c"/></marker>
+  </defs>
+  <rect width="960" height="480" fill="#ffffff"/>
+  <text x="480" y="30" text-anchor="middle" fill="#111827" font-size="16" font-weight="600">The 5 Roles</text>
+  <text x="480" y="50" text-anchor="middle" fill="#6b7280" font-size="12">Context-isolated · Output-contract-bound · Adversarial by design</text>
+  <rect x="30" y="65" width="205" height="160" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <rect x="30" y="65" width="205" height="35" rx="8" fill="#2563eb" stroke="none"/>
+  <rect x="30" y="85" width="205" height="15" fill="#2563eb" stroke="none"/>
+  <text x="132" y="89" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600">SPEC</text>
+  <text x="132" y="118" text-anchor="middle" fill="#1e3a8a" font-size="11">Distills fuzzy requirements</text>
+  <text x="132" y="133" text-anchor="middle" fill="#1e3a8a" font-size="11">into executable spec</text>
+  <line x1="50" y1="148" x2="215" y2="148" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="132" y="163" text-anchor="middle" fill="#6b7280" font-size="10">scope · constraints</text>
+  <text x="132" y="177" text-anchor="middle" fill="#6b7280" font-size="10">ambiguities · acceptance</text>
+  <text x="132" y="191" text-anchor="middle" fill="#6b7280" font-size="10">open_decisions</text>
+  <rect x="50" y="202" width="165" height="17" rx="4" fill="#dbeafe"/>
+  <text x="132" y="214" text-anchor="middle" fill="#1d4ed8" font-size="10" font-weight="600">output → spec artifact</text>
+  <rect x="30" y="260" width="205" height="160" rx="8" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.5"/>
+  <rect x="30" y="260" width="205" height="35" rx="8" fill="#7c3aed" stroke="none"/>
+  <rect x="30" y="280" width="205" height="15" fill="#7c3aed" stroke="none"/>
+  <text x="132" y="284" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600">PLANNER</text>
+  <text x="132" y="313" text-anchor="middle" fill="#4c1d95" font-size="11">Minimal viable approach</text>
+  <text x="132" y="328" text-anchor="middle" fill="#4c1d95" font-size="11">boring default preferred</text>
+  <line x1="50" y1="343" x2="215" y2="343" stroke="#e9d5ff" stroke-width="1"/>
+  <text x="132" y="358" text-anchor="middle" fill="#6b7280" font-size="10">1-2 candidates generated</text>
+  <text x="132" y="372" text-anchor="middle" fill="#6b7280" font-size="10">economical path selected</text>
+  <text x="132" y="386" text-anchor="middle" fill="#6b7280" font-size="10">full footprint declared</text>
+  <rect x="50" y="397" width="165" height="17" rx="4" fill="#ede9fe"/>
+  <text x="132" y="409" text-anchor="middle" fill="#6d28d9" font-size="10" font-weight="600">output → plan artifact</text>
+  <rect x="377" y="165" width="205" height="155" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+  <rect x="377" y="165" width="205" height="35" rx="8" fill="#16a34a" stroke="none"/>
+  <rect x="377" y="185" width="205" height="15" fill="#16a34a" stroke="none"/>
+  <text x="479" y="189" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600">BUILDER</text>
+  <text x="479" y="218" text-anchor="middle" fill="#14532d" font-size="11">Implements strictly within</text>
+  <text x="479" y="233" text-anchor="middle" fill="#14532d" font-size="11">approved plan scope</text>
+  <line x1="397" y1="248" x2="562" y2="248" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="479" y="263" text-anchor="middle" fill="#6b7280" font-size="10">no self-expanding scope</text>
+  <text x="479" y="277" text-anchor="middle" fill="#6b7280" font-size="10">flags scope creep</text>
+  <text x="479" y="291" text-anchor="middle" fill="#6b7280" font-size="10">hook-registry checks</text>
+  <rect x="397" y="302" width="165" height="17" rx="4" fill="#dcfce7"/>
+  <text x="479" y="314" text-anchor="middle" fill="#15803d" font-size="10" font-weight="600">output → build diff</text>
+  <rect x="725" y="65" width="205" height="195" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5"/>
+  <rect x="725" y="65" width="205" height="35" rx="8" fill="#dc2626" stroke="none"/>
+  <rect x="725" y="85" width="205" height="15" fill="#dc2626" stroke="none"/>
+  <text x="827" y="89" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600">REVIEWER</text>
+  <text x="827" y="118" text-anchor="middle" fill="#7f1d1d" font-size="11">Reduction-Review —</text>
+  <text x="827" y="133" text-anchor="middle" fill="#7f1d1d" font-size="11">adversary, not approver</text>
+  <line x1="745" y1="148" x2="910" y2="148" stroke="#fecaca" stroke-width="1"/>
+  <text x="827" y="163" text-anchor="middle" fill="#6b7280" font-size="10">finds deletable content</text>
+  <text x="827" y="177" text-anchor="middle" fill="#6b7280" font-size="10">complexity smells</text>
+  <text x="827" y="191" text-anchor="middle" fill="#6b7280" font-size="10">verification gaps</text>
+  <rect x="745" y="200" width="165" height="17" rx="4" fill="#fee2e2"/>
+  <text x="827" y="212" text-anchor="middle" fill="#dc2626" font-size="10" font-weight="600">deletion_proposals: required</text>
+  <text x="827" y="234" text-anchor="middle" fill="#9ca3af" font-size="9">3 independent sessions: spec-after,</text>
+  <text x="827" y="247" text-anchor="middle" fill="#9ca3af" font-size="9">plan-after, build-after</text>
+  <rect x="745" y="250" width="165" height="17" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+  <text x="827" y="262" text-anchor="middle" fill="#dc2626" font-size="10">output → review artifact</text>
+  <rect x="725" y="295" width="205" height="125" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <rect x="725" y="295" width="205" height="32" rx="8" fill="#ea580c" stroke="none"/>
+  <rect x="725" y="312" width="205" height="15" fill="#ea580c" stroke="none"/>
+  <text x="827" y="317" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600">RCA</text>
+  <text x="827" y="342" text-anchor="middle" fill="#7c2d12" font-size="11">Root cause analysis</text>
+  <line x1="745" y1="355" x2="910" y2="355" stroke="#fed7aa" stroke-width="1"/>
+  <text x="827" y="370" text-anchor="middle" fill="#6b7280" font-size="10">only after confirmed failures</text>
+  <text x="827" y="384" text-anchor="middle" fill="#6b7280" font-size="10">evidence-based, not speculative</text>
+  <rect x="745" y="394" width="165" height="17" rx="4" fill="#fed7aa" opacity="0.5"/>
+  <text x="827" y="406" text-anchor="middle" fill="#c2410c" font-size="10" font-weight="600">output → rca artifact</text>
+  <line x1="132" y1="225" x2="132" y2="258" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#ap)"/>
+  <rect x="85" y="232" width="94" height="15" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="132" y="243" text-anchor="middle" fill="#7c3aed" font-size="10">spec artifact</text>
+  <path d="M 235,145 Q 306,145 375,225" stroke="#2563eb" stroke-width="1.5" fill="none" marker-end="url(#ab)"/>
+  <rect x="254" y="133" width="75" height="15" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="291" y="144" text-anchor="middle" fill="#2563eb" font-size="10">spec → build</text>
+  <path d="M 235,340 Q 306,340 375,290" stroke="#7c3aed" stroke-width="1.5" fill="none" marker-end="url(#ap)"/>
+  <rect x="254" y="328" width="75" height="15" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="291" y="339" text-anchor="middle" fill="#7c3aed" font-size="10">plan → build</text>
+  <line x1="582" y1="243" x2="723" y2="163" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="613" y="193" width="70" height="15" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="648" y="204" text-anchor="middle" fill="#dc2626" font-size="10">build diff</text>
+  <line x1="827" y1="260" x2="827" y2="293" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ao)"/>
+  <rect x="750" y="268" width="80" height="15" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="790" y="279" text-anchor="middle" fill="#ea580c" font-size="10">on failure only</text>
+  <line x1="30" y1="460" x2="58" y2="460" stroke="#2563eb" stroke-width="1.5" marker-end="url(#ab)"/>
+  <text x="65" y="464" fill="#6b7280" font-size="11">spec feeds build</text>
+  <line x1="190" y1="460" x2="218" y2="460" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#ap)"/>
+  <text x="225" y="464" fill="#6b7280" font-size="11">plan feeds build</text>
+  <line x1="355" y1="460" x2="383" y2="460" stroke="#dc2626" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="390" y="464" fill="#6b7280" font-size="11">diff to reviewer</text>
+  <line x1="510" y1="460" x2="538" y2="460" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#ao)"/>
+  <text x="545" y="464" fill="#6b7280" font-size="11">on failure → rca</text>
+  <text x="910" y="470" text-anchor="end" fill="#d1d5db" font-size="10">Sextant v0.0.1</text>
+</svg>

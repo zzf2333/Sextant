@@ -1,83 +1,121 @@
-# Sextant
-
-**An engineering mindset framework that tells you where you are when coding with AI.**
-
 [中文文档](README.zh.md)
+
+<div align="center">
+
+<h1>Sextant</h1>
+
+<p><strong>An engineering mindset framework that tells you where you are when coding with AI.</strong></p>
+
+<p>
+  <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
+  <img src="https://img.shields.io/badge/version-0.0.1-3b82f6?style=flat-square" alt="v0.0.1"/>
+  <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
+</p>
+
+</div>
 
 ---
 
-## What is Sextant?
-
-A nautical sextant helps navigators determine their position at sea by measuring angles between celestial bodies and the horizon. It doesn't make the ship faster — it tells the captain exactly where the ship is at every critical decision point.
+A nautical sextant doesn't make the ship faster — it tells the captain exactly where the ship is at every critical decision point. Without it, you're navigating by feel.
 
 Sextant does the same for AI-assisted coding.
 
-AI-generated code looks correct line by line. Tests pass. Everything seems fine. But you don't know if you've drifted — whether the abstraction is over-engineered, whether the implementation has diverged from the original spec, whether you're paying the cost of imagined future requirements.
+AI-generated code looks correct line by line. Tests pass. Everything seems fine. But you don't know if you've drifted — whether the abstraction is over-engineered, whether the implementation has diverged from the spec, whether you're paying the cost of imagined future requirements.
 
-**Sextant is not a tool to make AI smarter or make you code faster. It's a tool that tells you whether you're still on the right course at every critical decision point.**
+**Sextant is not a tool to make AI smarter or make you code faster. It's a tool that tells you whether you're still on course at every critical decision point.**
 
-## Why Sextant?
+---
 
-AI coding tools today have strong generation capability but lack engineering judgment. Four real problems:
+## The Problem
 
-1. **No project-wide view.** Each task is treated as an island. The model doesn't know how the current feature fits into the project, its relationship with existing parts, or whether it duplicates something elsewhere.
+You're building a feature with Claude Code. You write the spec in your head, ask the AI to implement it, the tests pass, and it looks clean. Three days later:
 
-2. **Over-engineering by default.** Models slide toward "more complete engineering practice": more abstraction layers, more files, more interfaces, more future extension points. Each looks reasonable in isolation; collectively they're out of control.
+- A second AI session re-introduces an abstraction you already rejected
+- The implementation has three more files than the plan called for
+- The reviewer (you, running on empty) approved a diff that solved the wrong problem
 
-3. **Self-writing, self-testing blind spots.** The same mental flow writes the spec, designs the solution, implements it, and then validates it. The result is self-consistency, not independent verification.
+This isn't a model capability problem. Claude, GPT, Gemini — they're all capable. They just lack **engineering judgment** baked into the workflow.
 
-4. **Context amnesia.** A new session doesn't remember where the project evolved to, what the last few tasks did, why something was designed this way, or which failure paths have already been tried.
+Four real failure modes:
+
+| Failure                                    | What Happens                                                                                                                                       |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **No project-wide view**                   | Each session treats tasks as islands. Naming drift, duplicate logic, architectural contradictions accumulate silently.                             |
+| **Over-engineering by default**            | Models slide toward "more complete" practice: extra abstraction layers, more files, more extension points. Each looks reasonable in isolation.     |
+| **Self-writing, self-testing blind spots** | The same mental flow writes the spec, designs the solution, implements, then validates it. You get self-consistency, not independent verification. |
+| **Context amnesia**                        | A new session doesn't know where the project evolved to, what the last task did, why something was designed this way.                              |
+
+![Sextant Architecture](docs/diagrams/01-architecture.png)
+
+---
 
 ## How It Works
 
-Sextant externalizes engineering discipline into a runtime protocol:
+Sextant externalizes engineering discipline into a runtime protocol: five context-isolated roles, five phases, and a knowledge system that only keeps what would change a current engineering judgment.
 
 ### 5 Roles
 
-| Role         | Responsibility                                                                 |
-| ------------ | ------------------------------------------------------------------------------ |
-| **spec**     | Distill requirements into executable specs with clear boundaries               |
-| **planner**  | Propose the minimal viable approach, favor boring defaults                     |
-| **builder**  | Implement strictly within the plan's declared scope                            |
-| **reviewer** | Reduction-Review: find deletable content, complexity smells, verification gaps |
-| **rca**      | Root cause analysis — only appears after failures, rework, or incidents        |
+![Role Interactions](docs/diagrams/03-roles.png)
 
-> The reviewer's core contract: always output a `deletion_proposals` field. If nothing can be deleted, explicitly write `none`. The reviewer is an adversary, not an approver.
+| Role         | Responsibility                                                                                  | Key Contract                                                                                                                         |
+| ------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **spec**     | Distills fuzzy requirements into an executable spec with explicit scope and acceptance criteria | Produces: scope, constraints, ambiguities, acceptance criteria, open decisions                                                       |
+| **planner**  | Proposes the minimal viable approach, prefers boring defaults, avoids over-building             | Generates 1–2 candidates, selects the most economical path, declares full footprint                                                  |
+| **builder**  | Implements strictly within the plan's declared scope                                            | Flags scope creep rather than committing it; runs hook-registry checks before declaring done                                         |
+| **reviewer** | **Reduction-Review** — adversary, not approver                                                  | `deletion_proposals` is a required field. If nothing can be deleted, explicitly write `none`. Reviewer sees products, not reasoning. |
+| **rca**      | Root cause analysis                                                                             | Only appears after confirmed failures, rework events, or incidents — never speculatively                                             |
+
+> The reviewer runs in **three independent sessions**: after spec, after plan, after build. Each is a fresh adversarial context that only receives the upstream structured artifact — never the reasoning process that produced it.
 
 ### 5 Phases
 
+![Workflow](docs/diagrams/02-workflow.png)
+
 **Spec → Plan → Build → Verify → Record**
 
-Verify is a phase, not a role. It's handled by deterministic tooling (tests, types, lint, hooks) combined with the reviewer examining the diff.
+Verify is a phase, not a role. It's owned by the deterministic toolchain (tests, types, lint, hooks) plus the reviewer examining the diff. Not by the same agent that wrote the code.
 
 ### 3 Task Levels
 
-- **L0** — Minor text changes, small style fixes, low-risk small bugs
-- **L1** — New page, one API endpoint, small-scope module changes
-- **L2** — Data model changes, architecture migrations, auth/payment/sync modifications
+Tasks are classified at the start. Levels only escalate, never downgrade:
 
-Levels only escalate, never downgrade. Override with `--force-l0/l1/l2`.
+| Level                   | Triggers                                                       | Required Flow                       |
+| ----------------------- | -------------------------------------------------------------- | ----------------------------------- |
+| **L0** — micro-task     | Text changes, style fixes, low-risk tiny bugs                  | Local verify + record               |
+| **L1** — standard task  | New page, one API endpoint, small-scope module change          | Full 5-phase flow                   |
+| **L2** — high-risk task | Data model changes, auth/payment/sync, architecture migrations | Strict reviewer + rollback thinking |
+
+Override with `--force-l0`, `--force-l1`, or `--force-l2`.
 
 ### Knowledge System
 
-Four knowledge objects, each with a defined invalidation condition:
+Four knowledge files live in your project, versioned alongside your code. Each has a defined invalidation condition so the system stays lean — it's not an archive:
 
-| File                       | Invalidated when                         |
-| -------------------------- | ---------------------------------------- |
-| `SEXTANT.md`               | Current technical constraints change     |
-| `modules/*/EVOLUTION.md`   | Module history path changes              |
-| `PROJECT_EVOLUTION_LOG.md` | Project-level long-term decisions update |
-| `hook-registry.json`       | The rule itself changes                  |
+| File                       | Invalidated When                         | Content                                               |
+| -------------------------- | ---------------------------------------- | ----------------------------------------------------- |
+| `SEXTANT.md`               | Technical constraints change             | Current stack, explicit no-go rules, defaults         |
+| `modules/*/EVOLUTION.md`   | Module history path changes              | Design decisions, rejected paths, accepted trade-offs |
+| `PROJECT_EVOLUTION_LOG.md` | Project-level long-term decisions update | Cross-module choices, architecture trade-offs         |
+| `hook-registry.json`       | The rule itself changes                  | Machine-checkable guardrails, deterministic gates     |
 
 **Principle:** Only keep content that would change a current engineering judgment. Not an archive.
 
+---
+
 ## Design Principles
 
-1. **Concentrate verification density at the smallest artifact.** Every token spent validating a spec prevents dozens of tokens of wrong code downstream.
-2. **Adversarial structure over model count.** True adversarial review comes from context isolation + responsibility isolation + output contract isolation — independent of model brand.
-3. **Deterministic logic before LLM.** Dispatching, task classification, tool gating: deterministic first. LLM only where genuine judgment is needed.
-4. **Verification independence from "looking at products, not reasoning."** The reviewer receives only upstream structured output, never the upstream reasoning process.
-5. **Every layer must be retirable.** Sextant serves the capability gap of 2026. Each mechanism can be independently disabled as models improve.
+1. **Concentrate verification density at the smallest artifact.** Every token spent validating a spec prevents dozens of tokens of wrong code downstream. Validate specs, not implementations.
+
+2. **Adversarial structure over model count.** True adversarial review comes from context isolation + responsibility isolation + output contract isolation. Independent of model brand.
+
+3. **Deterministic logic before LLM.** Task classification, tool gating, state transitions: deterministic first. LLM only where genuine judgment is needed.
+
+4. **Verification independence from "looking at products, not reasoning."** The reviewer receives only upstream structured output — never the reasoning process or intermediate drafts.
+
+5. **Every layer must be retirable.** Sextant serves the capability gap of 2026. Each mechanism can be independently disabled as models improve. This is health, not failure.
+
+---
 
 ## Quick Start with Claude Code
 
@@ -101,25 +139,31 @@ cat adapters/claude-code/CLAUDE.md.snippet >> /path/to/your-project/CLAUDE.md
 Then in Claude Code within your project:
 
 ```
-/sextant-spec     # Start a task: define scope and acceptance criteria
+/sextant-spec     # Define scope and acceptance criteria
 /sextant-plan     # Choose the minimal implementation approach
 /sextant-build    # Implement within the approved plan
 /sextant-verify   # Run tools + adversarial review
 /sextant-record   # Write back knowledge, close the task
 ```
 
+---
+
 ## Status
 
 **v0.0.1** — Core text layer and Claude Code adapter complete.
 
-- `core/roles/` — 5 role prompts (reviewer, spec, planner, builder, rca)
-- `core/templates/` — 5 output templates
-- `core/rules/` — task classification, stage gates, rollback rules
-- `core/knowledge/` — 4 knowledge file initialization templates
-- `adapters/claude-code/` — subagents, slash commands, hooks, install script
-- `scripts/bootstrap.sh` — knowledge layout initializer
+| Component               | Status                                                 |
+| ----------------------- | ------------------------------------------------------ |
+| `core/roles/`           | 5 role prompts (reviewer, spec, planner, builder, rca) |
+| `core/templates/`       | 5 output templates                                     |
+| `core/rules/`           | Task classification, stage gates, rollback rules       |
+| `core/knowledge/`       | 4 knowledge file initialization templates              |
+| `adapters/claude-code/` | Subagents, slash commands, hooks, install script       |
+| `scripts/bootstrap.sh`  | Knowledge layout initializer                           |
 
-Generic CLI and Trace system planned for v0.2. See [roadmap](docs/roadmap.md).
+Generic CLI and Trace system planned for v0.2.
+
+---
 
 ## License
 
