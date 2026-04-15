@@ -11,9 +11,12 @@ fi
 
 cd "$REPO_ROOT"
 
-# Install in editable mode if the cli package is not already importable
+# Install package and pytest if not already available
 if ! python3 -c "import cli" 2>/dev/null; then
     python3 -m pip install -e . --quiet
+fi
+if ! python3 -c "import pytest" 2>/dev/null; then
+    python3 -m pip install pytest --quiet
 fi
 
 python3 -m pytest tests/cli/ -v
