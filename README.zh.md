@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.1-3b82f6?style=flat-square" alt="v0.0.2"/>
+  <img src="https://img.shields.io/badge/version-0.0.3-3b82f6?style=flat-square" alt="v0.0.3"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -124,48 +124,55 @@ Verify 是阶段，不是角色。由确定性工具栈（tests / types / lint /
 **前提：** Claude Code CLI 或桌面版。
 
 ```sh
-# 1. 克隆 Sextant
+# 克隆 Sextant
 git clone https://github.com/SaoNian/Sextant
-
-# 2. 在你的项目里初始化知识文件
 cd Sextant
-./scripts/bootstrap.sh --target /path/to/your-project
 
-# 3. 安装 Claude Code adapter
-./adapters/claude-code/install.sh --project --path /path/to/your-project
-
-# 4. 把 Sextant 指令追加到项目 CLAUDE.md
-cat adapters/claude-code/CLAUDE.md.snippet >> /path/to/your-project/CLAUDE.md
+# 一键安装：agents、commands、知识文件、CLAUDE.md snippet
+./adapters/claude-code/install.sh --project \
+  --path /path/to/your-project \
+  --bootstrap \
+  --with-snippet
 ```
 
-在 Claude Code 中，对每个任务运行 5 阶段流程：
+然后在 Claude Code 里启动第一个任务：
 
 ```
-/sextant-spec     # 加载项目知识 → 定义任务范围和验收标准
+/sextant "描述你要做的事情"
+```
+
+就这样。`/sextant` 会自动运行 Spec、Plan、Build、Verify 和 Record——只在真正需要你做决定的时候暂停。正常的 L1 任务三次 `/sextant` 即可跑完完整流程。
+
+需要逐阶段显式控制，或处理 L2 任务（数据模型、权限、支付）时：
+
+```
+/sextant-spec     # 定义任务范围和验收标准
 /sextant-plan     # 给出最小可行实现方案
 /sextant-build    # 在批准方案内实施
 /sextant-verify   # 跑工具链 + 对抗审查
-/sextant-record   # 写回知识 → 关闭任务
+/sextant-record   # 写回知识，关闭任务
+/sextant-status   # 查看当前阶段、阻塞点和下一步操作
 ```
 
-下一个任务从 `/sextant-spec` 重新开始。每次 `record` 会更新项目知识文件
-（`SEXTANT.md`、`EVOLUTION.md`、`hook-registry.json`）；下一次 `spec` 会加载这些文件——
-这就是防止跨会话、跨任务上下文失忆的知识循环。
+每次 `record` 会更新项目知识文件（`SEXTANT.md`、`EVOLUTION.md`、`hook-registry.json`）；
+下一个任务的 `spec` 会加载这些文件——这就是防止跨会话上下文失忆的知识循环。
+
+详细步骤见 `docs/quickstart.md`。
 
 ---
 
 ## 当前状态
 
-**v0.0.2** — Core 文本层与 Claude Code adapter 已完成。
+**v0.0.3** — Claude Code adapter 可用性版本。
 
-| 组件                    | 状态                                                         |
-| ----------------------- | ------------------------------------------------------------ |
-| `core/roles/`           | 5 个角色 prompt（reviewer / spec / planner / builder / rca） |
-| `core/templates/`       | 5 套结构化输出模板                                           |
-| `core/rules/`           | 任务分级、阶段门控、回退规则                                 |
-| `core/knowledge/`       | 4 类知识文件初始化模板                                       |
-| `adapters/claude-code/` | subagent、slash command、hook 示例、安装脚本                 |
-| `scripts/bootstrap.sh`  | 知识布局初始化脚本                                           |
+| 组件                    | 状态                                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| `core/roles/`           | 5 个角色 prompt（reviewer / spec / planner / builder / rca）                              |
+| `core/templates/`       | 5 套结构化输出模板                                                                        |
+| `core/rules/`           | 任务分级、阶段门控、回退规则                                                              |
+| `core/knowledge/`       | 4 类知识文件初始化模板                                                                    |
+| `adapters/claude-code/` | `/sextant` 主命令、5 个阶段命令、`/sextant-status`、hooks（advisory/team/strict）、一键安装 |
+| `scripts/bootstrap.sh`  | 知识布局初始化脚本                                                                        |
 
 generic CLI 与 Trace 系统计划在 v0.2 实现。
 

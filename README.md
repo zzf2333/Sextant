@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.1-3b82f6?style=flat-square" alt="v0.0.2"/>
+  <img src="https://img.shields.io/badge/version-0.0.3-3b82f6?style=flat-square" alt="v0.0.3"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -124,48 +124,58 @@ Four knowledge files live in your project, versioned alongside your code. Each h
 **Requirements:** Claude Code CLI or desktop app.
 
 ```sh
-# 1. Clone Sextant
+# Clone Sextant
 git clone https://github.com/SaoNian/Sextant
-
-# 2. Initialize knowledge files in your project
 cd Sextant
-./scripts/bootstrap.sh --target /path/to/your-project
 
-# 3. Install the Claude Code adapter
-./adapters/claude-code/install.sh --project --path /path/to/your-project
-
-# 4. Append Sextant instructions to your project's CLAUDE.md
-cat adapters/claude-code/CLAUDE.md.snippet >> /path/to/your-project/CLAUDE.md
+# One-shot install: agents, commands, knowledge files, CLAUDE.md snippet
+./adapters/claude-code/install.sh --project \
+  --path /path/to/your-project \
+  --bootstrap \
+  --with-snippet
 ```
 
-Then run the 5-phase pipeline for each task in Claude Code:
+Then start your first task in Claude Code:
 
 ```
-/sextant-spec     # Load project knowledge → define scope and acceptance criteria
-/sextant-plan     # Choose the minimal implementation approach
-/sextant-build    # Implement within the approved plan
-/sextant-verify   # Run tools + adversarial review
-/sextant-record   # Write back knowledge → close the task
+/sextant "describe what you want to build"
 ```
 
-Repeat from `/sextant-spec` for the next task. Each `record` updates the project knowledge
-files (`SEXTANT.md`, `EVOLUTION.md`, `hook-registry.json`); the next `spec` loads them —
-this is the loop that prevents context amnesia across sessions.
+That's it. `/sextant` runs Spec, Plan, Build, Verify, and Record — pausing only at
+meaningful decision points. On a normal L1 task, three `/sextant` invocations complete
+the full cycle.
+
+For explicit stage control or L2 tasks (data model, auth, payment):
+
+```
+/sextant-spec     # define scope and acceptance criteria
+/sextant-plan     # choose the minimal implementation approach
+/sextant-build    # implement within the approved plan
+/sextant-verify   # run tools + adversarial review
+/sextant-record   # write back knowledge, close the task
+/sextant-status   # see current stage, blockers, and next action
+```
+
+Each `record` updates the project knowledge files (`SEXTANT.md`, `EVOLUTION.md`,
+`hook-registry.json`); the next task's `spec` loads them — this is the loop that
+prevents context amnesia across sessions.
+
+See `docs/quickstart.md` for a step-by-step walkthrough.
 
 ---
 
 ## Status
 
-**v0.0.2** — Core text layer and Claude Code adapter complete.
+**v0.0.3** — Claude Code adapter usability release.
 
-| Component               | Status                                                 |
-| ----------------------- | ------------------------------------------------------ |
-| `core/roles/`           | 5 role prompts (reviewer, spec, planner, builder, rca) |
-| `core/templates/`       | 5 output templates                                     |
-| `core/rules/`           | Task classification, stage gates, rollback rules       |
-| `core/knowledge/`       | 4 knowledge file initialization templates              |
-| `adapters/claude-code/` | Subagents, slash commands, hooks, install script       |
-| `scripts/bootstrap.sh`  | Knowledge layout initializer                           |
+| Component               | Status                                                                      |
+| ----------------------- | --------------------------------------------------------------------------- |
+| `core/roles/`           | 5 role prompts (reviewer, spec, planner, builder, rca)                      |
+| `core/templates/`       | 5 output templates                                                          |
+| `core/rules/`           | Task classification, stage gates, rollback rules                            |
+| `core/knowledge/`       | 4 knowledge file initialization templates                                   |
+| `adapters/claude-code/` | `/sextant` primary command, 5 stage commands, `/sextant-status`, hooks (advisory/team/strict), one-shot install |
+| `scripts/bootstrap.sh`  | Knowledge layout initializer                                                |
 
 Generic CLI and Trace system planned for v0.2.
 

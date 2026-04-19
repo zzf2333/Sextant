@@ -5,33 +5,51 @@
 This project uses [Sextant](https://github.com/SaoNian/Sextant) — an engineering mindset framework
 that constrains AI coding behavior to a clearer, more verifiable path.
 
-### Flow
+### Starting a task
 
-Every non-trivial task follows: **Spec → Plan → Build → Verify → Record**
+For most tasks, start with:
 
-Use these slash commands to drive each stage:
+```
+/sextant "what you want to build"
+```
+
+This runs Spec, Plan, Build, Verify, and Record — pausing only at meaningful decision
+points. No manual stage-driving required for standard L0/L1 work.
+
+### Explicit stage commands
+
+For advanced control, debugging, or L2 tasks requiring step-by-step review:
+
 - `/sextant-spec` — define scope, constraints, and acceptance criteria
 - `/sextant-plan` — produce the minimal implementation approach
 - `/sextant-build` — implement strictly within the approved plan
 - `/sextant-verify` — run tools + adversarial review
 - `/sextant-record` — write back knowledge and close the task
+- `/sextant-status` — see where you are and what to do next
 
-### Task Classification
+### Task classification
 
 Tasks are automatically classified as L0 / L1 / L2. Use `--force-l0/l1/l2` to override.
 L2 tasks (data model, auth, payment, sync) require reviewer approval at all stages.
+For L2 tasks, prefer explicit stage commands over `/sextant` for step-by-step control.
 
-### Knowledge Files
+### Knowledge files
 
 This project maintains four Sextant knowledge files. Read them at task start:
-- `SEXTANT.md` — current tech stack, defaults, explicit non-goals
+
+- `SEXTANT.md` — current tech stack, verify commands, explicit non-goals
 - `modules/*/EVOLUTION.md` — module-level design history
 - `PROJECT_EVOLUTION_LOG.md` — project-level architectural decisions
 - `hook-registry.json` — mechanically enforceable rules
 
 Do not start a task without reading `SEXTANT.md` first.
 
-### Reviewer Rule
+### Reviewer rule
 
 The reviewer role has one non-negotiable constraint: every review output must contain a
 `deletion_proposals` field. If nothing qualifies for deletion, write `none` explicitly.
+
+### Recovery
+
+If you lose track of where a task is, run `/sextant-status` to get a full state report
+and the recommended next action.

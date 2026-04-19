@@ -15,8 +15,13 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 ## Workflow
 
-1. **Gate 2 check**: Follow `core/snippets/check-upstream-gate.md` with `stage=plan`.
-   Stop if the check fails.
+1. **Gate 2 check**: follow `core/snippets/check-upstream-gate.md` with `stage=plan`.
+
+   On failure, print the specific reason (missing file or rejected verdict), then:
+   ```
+   Gate 2 failed. Run /sextant-plan (or /sextant) to produce an approved plan first.
+   ```
+   Stop.
 
 2. **Display plan summary**: Print the recommended candidate name, rationale summary,
    and engineering footprint from the approved plan.
@@ -33,8 +38,14 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 6. **Save build summary**: Write the subagent's build summary output to
    `.sextant/traces/<task_id>/build-summary.md`
 
-7. **Check scope_creep_flags**: If `scope_creep_flags` is non-empty, display each flag
+7. **Check scope_creep_flags**: if `scope_creep_flags` is non-empty, display each flag
    and ask: "These items were added beyond plan scope. Accept (amend plan), reject, or defer?"
+   Do not proceed to verify until all flags are resolved.
 
-8. **Prompt for next step** (if no blocking flags): "Build complete. Run `/sextant-verify`
-   to run the verification layer."
+8. **Prompt for next step** (if no blocking flags):
+   ```
+   Build complete.
+
+   Run /sextant to verify and close this task.
+   (Or /sextant-verify for explicit verification control.)
+   ```

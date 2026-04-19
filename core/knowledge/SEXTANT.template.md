@@ -47,3 +47,16 @@ Outdated entries are worse than no entries — remove or update them when they b
 
 - <!-- e.g. "Deployment target is a single VPS with 2GB RAM — no Kubernetes" -->
 - <!-- e.g. "External API X has a rate limit of 100 req/min; all callers must respect this" -->
+
+---
+
+## Verification Commands
+
+> Commands run by /sextant-verify (and /sextant) during the Verify stage.
+> If this section is absent or empty, the adapter will auto-detect from project structure.
+> Set explicitly to pin specific commands or add custom checks.
+
+verify_commands:
+  # - npm test
+  # - npx tsc --noEmit
+  # - npm run lint

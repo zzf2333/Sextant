@@ -95,3 +95,6 @@ replace_in_file() {
 
 replace_in_file "$REPO_ROOT/README.md"    "v$CURRENT" "v$NEW"
 replace_in_file "$REPO_ROOT/README.zh.md" "v$CURRENT" "v$NEW"
+# Also update badge URL (uses version-X.Y.Z without v prefix)
+replace_in_file "$REPO_ROOT/README.md"    "version-$CURRENT" "version-$NEW"
+replace_in_file "$REPO_ROOT/README.zh.md" "version-$CURRENT" "version-$NEW"

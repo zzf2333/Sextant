@@ -1,12 +1,20 @@
 {
-    "_note": "These are example Sextant hooks for Claude Code settings.json. Copy the 'hooks' array entries into your ~/.claude/settings.json or <project>/.claude/settings.json. Do NOT enable these in the Sextant repo itself — they are intended for projects that use Sextant.",
-    "hooks": [
+    "_note": "Sextant session hooks for Claude Code. Copy the hooks array entries into your ~/.claude/settings.json or <project>/.claude/settings.json. Do NOT enable these in the Sextant repo itself — they are intended for projects that use Sextant.",
+    "_enforcement_levels": {
+        "advisory":  "Warnings only. Never blocks actions. Default level.",
+        "team":      "Blocks git commit when build review is missing. Allows other actions.",
+        "strict":    "Blocks git commit when review is missing AND when scope_creep_flags are unresolved."
+    },
+    "_default_level": "advisory",
+
+    "hooks_advisory": [
         {
+            "_comment": "ADVISORY level — paste these entries into the 'hooks' array in settings.json",
             "event": "Stop",
             "hooks": [
                 {
                     "type": "command",
-                    "command": "echo '\n[Sextant] Session ending. If you completed a Build stage, run /sextant-verify before closing. If Verify passed, run /sextant-record to close the task.'"
+                    "command": "INCOMPLETE=\"\"; for d in .sextant/traces/*/; do if [ -f \"${d}build-summary.md\" ] && [ ! -f \"${d}review-build.md\" ]; then INCOMPLETE=\"$INCOMPLETE $(basename $d)\"; fi; done; if [ -n \"$INCOMPLETE\" ]; then echo ''; echo '[Sextant] Incomplete build tasks:' $INCOMPLETE; echo '  Run /sextant or /sextant-verify to complete verification before closing.'; echo ''; fi"
                 }
             ]
         },
@@ -16,7 +24,53 @@
                 {
                     "type": "command",
                     "matcher": "Bash",
-                    "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'git commit'; then TASK_DIR=$(ls -dt .sextant/traces/*/  2>/dev/null | head -1); if [ -n \"$TASK_DIR\" ]; then REVIEW=\"${TASK_DIR}review-build.md\"; if [ ! -f \"$REVIEW\" ]; then echo '[Sextant WARNING] No build review found. Run /sextant-verify before committing.'; elif ! grep -q 'deletion_proposals' \"$REVIEW\"; then echo '[Sextant WARNING] review-build.md is missing the deletion_proposals field. Review artifact is malformed.'; fi; fi; fi"
+                    "command": "IS_COMMIT=$(echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); exit(0 if 'git commit' in d.get('command','') else 1)\" 2>/dev/null && echo yes || echo no); if [ \"$IS_COMMIT\" = \"yes\" ]; then TASK_DIR=$(ls -dt .sextant/traces/*/ 2>/dev/null | head -1); if [ -n \"$TASK_DIR\" ]; then REVIEW=\"${TASK_DIR}review-build.md\"; if [ ! -f \"$REVIEW\" ]; then echo '[Sextant] WARNING: No build review found for task '$(basename $TASK_DIR)'. Run /sextant-verify before committing.'; elif ! grep -q 'deletion_proposals' \"$REVIEW\"; then echo '[Sextant] WARNING: review-build.md is missing deletion_proposals. Review artifact may be malformed.'; fi; fi; fi"
+                }
+            ]
+        }
+    ],
+
+    "hooks_team": [
+        {
+            "_comment": "TEAM level — blocks git commit when build review is missing. Warnings only for other checks.",
+            "event": "Stop",
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": "INCOMPLETE=\"\"; for d in .sextant/traces/*/; do if [ -f \"${d}build-summary.md\" ] && [ ! -f \"${d}review-build.md\" ]; then INCOMPLETE=\"$INCOMPLETE $(basename $d)\"; fi; done; if [ -n \"$INCOMPLETE\" ]; then echo ''; echo '[Sextant] Incomplete build tasks:' $INCOMPLETE; echo '  Run /sextant or /sextant-verify to complete verification before closing.'; echo ''; fi"
+                }
+            ]
+        },
+        {
+            "event": "PreToolUse",
+            "hooks": [
+                {
+                    "type": "command",
+                    "matcher": "Bash",
+                    "command": "IS_COMMIT=$(echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); exit(0 if 'git commit' in d.get('command','') else 1)\" 2>/dev/null && echo yes || echo no); if [ \"$IS_COMMIT\" = \"yes\" ]; then TASK_DIR=$(ls -dt .sextant/traces/*/ 2>/dev/null | head -1); if [ -n \"$TASK_DIR\" ]; then REVIEW=\"${TASK_DIR}review-build.md\"; if [ ! -f \"$REVIEW\" ]; then echo '[Sextant] BLOCKED: No build review found for task '$(basename $TASK_DIR)'. Run /sextant-verify before committing.'; exit 2; elif ! grep -q 'deletion_proposals' \"$REVIEW\"; then echo '[Sextant] WARNING: review-build.md is missing deletion_proposals. Review artifact may be malformed.'; fi; fi; fi"
+                }
+            ]
+        }
+    ],
+
+    "hooks_strict": [
+        {
+            "_comment": "STRICT level — blocks git commit when review is missing OR when scope_creep_flags are unresolved.",
+            "event": "Stop",
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": "INCOMPLETE=\"\"; for d in .sextant/traces/*/; do if [ -f \"${d}build-summary.md\" ] && [ ! -f \"${d}review-build.md\" ]; then INCOMPLETE=\"$INCOMPLETE $(basename $d)\"; fi; done; if [ -n \"$INCOMPLETE\" ]; then echo ''; echo '[Sextant] Incomplete build tasks:' $INCOMPLETE; echo '  Run /sextant or /sextant-verify to complete verification before closing.'; echo ''; fi"
+                }
+            ]
+        },
+        {
+            "event": "PreToolUse",
+            "hooks": [
+                {
+                    "type": "command",
+                    "matcher": "Bash",
+                    "command": "IS_COMMIT=$(echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); exit(0 if 'git commit' in d.get('command','') else 1)\" 2>/dev/null && echo yes || echo no); if [ \"$IS_COMMIT\" = \"yes\" ]; then TASK_DIR=$(ls -dt .sextant/traces/*/ 2>/dev/null | head -1); if [ -n \"$TASK_DIR\" ]; then REVIEW=\"${TASK_DIR}review-build.md\"; if [ ! -f \"$REVIEW\" ]; then echo '[Sextant] BLOCKED: No build review for task '$(basename $TASK_DIR)'. Run /sextant-verify first.'; exit 2; fi; if grep -q 'scope_creep_flags' \"${TASK_DIR}build-summary.md\" 2>/dev/null; then UNRESOLVED=$(python3 -c \"import sys; content=open('${TASK_DIR}build-summary.md').read(); import re; flags=[l.strip() for l in re.findall(r'scope_creep_flags.*?\\n(.*?)(?=\\n#|\\Z)', content, re.DOTALL)]; exit(0 if any(f and f != 'none' and f != '[]' for f in flags) else 1)\" 2>/dev/null && echo yes || echo no); if [ \"$UNRESOLVED\" = \"yes\" ]; then echo '[Sextant] BLOCKED: Unresolved scope_creep_flags in build-summary.md. Resolve before committing.'; exit 2; fi; fi; fi; fi"
                 }
             ]
         }
