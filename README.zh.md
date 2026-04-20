@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.5-3b82f6?style=flat-square" alt="v0.0.5"/>
+  <img src="https://img.shields.io/badge/version-0.0.6-3b82f6?style=flat-square" alt="v0.0.6"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -149,6 +149,7 @@ cd Sextant
 /sextant-verify   # 跑工具链 + 对抗审查
 /sextant-record   # 写回知识，关闭任务
 /sextant-status   # 查看当前阶段、阻塞点和下一步操作
+/sextant-init     # 接入已有项目 — 检测技术栈并生成知识文件
 ```
 
 每次 `record` 会更新项目知识文件（`SEXTANT.md`、`EVOLUTION.md`、`hook-registry.json`）；
@@ -160,7 +161,7 @@ cd Sextant
 
 ## 当前状态
 
-**v0.0.5** — 默认路径打磨版本。
+**v0.0.6** — 已有项目接入版本。
 
 | 组件                    | 状态                                                                                      |
 | ----------------------- | ----------------------------------------------------------------------------------------- |
@@ -168,7 +169,7 @@ cd Sextant
 | `core/templates/`       | 5 套结构化输出模板                                                                        |
 | `core/rules/`           | 任务分级、阶段门控、回退规则                                                              |
 | `core/knowledge/`       | 4 类知识文件初始化模板                                                                    |
-| `adapters/claude-code/` | `/sextant` 主命令、5 个阶段命令、`/sextant-status`、hooks（advisory/team/strict）、一键安装 |
+| `adapters/claude-code/` | `/sextant` 主命令、5 个阶段命令、`/sextant-status`、`/sextant-init`、hooks（advisory/team/strict）、一键安装 |
 | `scripts/bootstrap.sh`  | 知识布局初始化脚本                                                                        |
 
 generic CLI 与 Trace 系统计划在 v0.2 实现。

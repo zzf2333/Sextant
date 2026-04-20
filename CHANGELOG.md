@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2026-04-20
+
+### Added
+
+- `/sextant-init` — new command for onboarding existing projects. Scans project
+  manifests (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.) to
+  auto-detect tech stack, frameworks, test runners, and module layout, then generates
+  the four Sextant knowledge files with pre-filled content. Solves the cold-start
+  problem where bootstrapping an existing project produced empty templates with no
+  useful context for the AI. Supports `--force` for silent re-initialization.
+
 ## [0.0.5] - 2026-04-20
 
 ### Changed

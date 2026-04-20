@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.5-3b82f6?style=flat-square" alt="v0.0.5"/>
+  <img src="https://img.shields.io/badge/version-0.0.6-3b82f6?style=flat-square" alt="v0.0.6"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -151,6 +151,7 @@ For explicit stage control or L2 tasks (data model, auth, payment):
 /sextant-verify   # run tools + adversarial review
 /sextant-record   # write back knowledge, close the task
 /sextant-status   # see current stage, blockers, and next action
+/sextant-init     # onboard an existing project — detect stack and generate knowledge files
 ```
 
 Each `record` updates the project knowledge files (`SEXTANT.md`, `EVOLUTION.md`,
@@ -163,7 +164,7 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 
 ## Status
 
-**v0.0.5** — Default-path polish release.
+**v0.0.6** — Existing-project onboarding release.
 
 | Component               | Status                                                                      |
 | ----------------------- | --------------------------------------------------------------------------- |
@@ -171,7 +172,7 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 | `core/templates/`       | 5 output templates                                                          |
 | `core/rules/`           | Task classification, stage gates, rollback rules                            |
 | `core/knowledge/`       | 4 knowledge file initialization templates                                   |
-| `adapters/claude-code/` | `/sextant` primary command, 5 stage commands, `/sextant-status`, hooks (advisory/team/strict), one-shot install |
+| `adapters/claude-code/` | `/sextant` primary command, 5 stage commands, `/sextant-status`, `/sextant-init`, hooks (advisory/team/strict), one-shot install |
 | `scripts/bootstrap.sh`  | Knowledge layout initializer                                                |
 
 Generic CLI and Trace system planned for v0.2.
