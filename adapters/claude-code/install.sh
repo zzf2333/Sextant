@@ -7,11 +7,12 @@
 #   ./install.sh --project           # install to ./.claude/ (current project)
 #   ./install.sh --project --path /path/to/project
 #
-# Optional flags (combinable):
-#   --bootstrap     also run bootstrap.sh to initialize knowledge files
-#   --with-snippet  also append CLAUDE.md snippet to CLAUDE.md
-#   --force         overwrite existing files without prompting
-#   --check         run readiness check only, no install
+# By default, the installer also initializes knowledge files and injects the
+# CLAUDE.md snippet. Use opt-out flags to disable parts of this:
+#   --skip-bootstrap   skip knowledge file initialization
+#   --skip-snippet     skip CLAUDE.md snippet injection
+#   --force            overwrite existing installed files
+#   --check            run readiness check only, no install
 
 set -e
 
@@ -41,8 +42,8 @@ Usage: $0 --user | --project [--path <project_path>] [options]
   --path <path>       Use <path> as project root (with --project)
 
 Options:
-  --bootstrap         Also initialize project knowledge files (SEXTANT.md, etc.)
-  --with-snippet      Also append the Sextant CLAUDE.md snippet to CLAUDE.md
+  --skip-bootstrap    Skip knowledge file initialization (SEXTANT.md, etc.)
+  --skip-snippet      Skip CLAUDE.md snippet injection
   --force             Overwrite existing installed files
   --check             Run readiness check only — do not install anything
 
@@ -53,21 +54,23 @@ EOF
 # ── argument parsing ──────────────────────────────────────────────────────────
 TARGET=""
 PROJECT_PATH="$(pwd)"
-OPT_BOOTSTRAP=0
-OPT_SNIPPET=0
+OPT_BOOTSTRAP=1
+OPT_SNIPPET=1
 OPT_FORCE=0
 OPT_CHECK=0
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        --user)          TARGET="user";        shift ;;
-        --project)       TARGET="project";     shift ;;
-        --path)          PROJECT_PATH="$2";    shift 2 ;;
-        --bootstrap)     OPT_BOOTSTRAP=1;      shift ;;
-        --with-snippet)  OPT_SNIPPET=1;        shift ;;
-        --force)         OPT_FORCE=1;          shift ;;
-        --check)         OPT_CHECK=1;          shift ;;
-        *)               usage ;;
+        --user)             TARGET="user";        shift ;;
+        --project)          TARGET="project";     shift ;;
+        --path)             PROJECT_PATH="$2";    shift 2 ;;
+        --bootstrap)        OPT_BOOTSTRAP=1;      shift ;;  # no-op: now default
+        --with-snippet)     OPT_SNIPPET=1;        shift ;;  # no-op: now default
+        --skip-bootstrap)   OPT_BOOTSTRAP=0;      shift ;;
+        --skip-snippet)     OPT_SNIPPET=0;        shift ;;
+        --force)            OPT_FORCE=1;          shift ;;
+        --check)            OPT_CHECK=1;          shift ;;
+        *)                  usage ;;
     esac
 done
 
@@ -250,18 +253,15 @@ for kf in SEXTANT.md PROJECT_EVOLUTION_LOG.md hook-registry.json; do
 done
 
 if [ "$NEED_SNIPPET" -eq 1 ] || [ "$NEED_BOOTSTRAP" -eq 1 ]; then
-    _yellow "Required steps remaining:"
+    _yellow "Setup incomplete — run with defaults to finish:"
+    echo ""
+    echo "  $SCRIPT_DIR/install.sh --project --path $PROJECT_PATH --force"
+    echo ""
     if [ "$NEED_SNIPPET" -eq 1 ]; then
-        echo ""
-        echo "  [Required] Add Sextant protocol instructions to CLAUDE.md:"
-        echo "    cat $SNIPPET_SRC >> $DEST_CLAUDE_MD"
-        echo "  (or re-run this script with --with-snippet)"
+        _warn "CLAUDE.md snippet not injected (re-run without --skip-snippet)"
     fi
     if [ "$NEED_BOOTSTRAP" -eq 1 ]; then
-        echo ""
-        echo "  [Required] Initialize project knowledge files:"
-        echo "    $BOOTSTRAP_SCRIPT --target $PROJECT_PATH"
-        echo "  (or re-run this script with --bootstrap)"
+        _warn "Knowledge files not initialized (re-run without --skip-bootstrap)"
     fi
 else
     _green "Project is ready."

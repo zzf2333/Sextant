@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.3-3b82f6?style=flat-square" alt="v0.0.3"/>
+  <img src="https://img.shields.io/badge/version-0.0.4-3b82f6?style=flat-square" alt="v0.0.4"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -129,10 +129,7 @@ git clone https://github.com/SaoNian/Sextant
 cd Sextant
 
 # 一键安装：agents、commands、知识文件、CLAUDE.md snippet
-./adapters/claude-code/install.sh --project \
-  --path /path/to/your-project \
-  --bootstrap \
-  --with-snippet
+./adapters/claude-code/install.sh --project --path /path/to/your-project
 ```
 
 然后在 Claude Code 里启动第一个任务：
@@ -163,7 +160,7 @@ cd Sextant
 
 ## 当前状态
 
-**v0.0.3** — Claude Code adapter 可用性版本。
+**v0.0.4** — 默认路径打磨版本。
 
 | 组件                    | 状态                                                                                      |
 | ----------------------- | ----------------------------------------------------------------------------------------- |

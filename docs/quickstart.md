@@ -9,10 +9,7 @@ Get from install to your first completed task in about 5 minutes.
 ```sh
 git clone https://github.com/SaoNian/Sextant
 cd Sextant
-./adapters/claude-code/install.sh --project \
-  --path /path/to/your-project \
-  --bootstrap \
-  --with-snippet
+./adapters/claude-code/install.sh --project --path /path/to/your-project
 ```
 
 Expected output:

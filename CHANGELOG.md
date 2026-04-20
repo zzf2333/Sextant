@@ -6,6 +6,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-04-20
+
+### Changed
+
+- `install.sh` — bootstrap and CLAUDE.md snippet injection are now **on by default**.
+  Running `./install.sh --project --path /your/project` installs agents, commands,
+  initializes knowledge files, and appends the CLAUDE.md snippet in one shot.
+  Use `--skip-bootstrap` or `--skip-snippet` to opt out of specific steps.
+  Old `--bootstrap` and `--with-snippet` flags are preserved as silent no-ops for
+  backward compatibility.
+- `install.sh` — readiness summary now says "Setup incomplete — re-run with defaults"
+  (instead of "[Required] steps remaining") when opt-out flags left setup incomplete.
+  "Project is ready." message is unchanged.
+- `install.sh` — `usage()` updated to document `--skip-bootstrap` and `--skip-snippet`
+  as the opt-out flags; old flags removed from help text (still accepted silently).
+- `adapters/claude-code/README.md` — one-shot install example simplified to remove
+  now-default flags. Added note about `--skip-snippet` / `--skip-bootstrap` for
+  agents/commands-only installs.
+- `docs/quickstart.md` — install example updated to match new one-command default.
+- `README.md` / `README.zh.md` — version badge updated; install example simplified.
+- `SEXTANT.md` — filled in with Sextant's actual tech stack (Python 3.11+, stdlib only,
+  pytest, POSIX sh). Was previously the blank template skeleton.
+- `adapters/claude-code/commands/sextant.md` — reduced happy-path friction:
+  - Active trace with matching description now **auto-resumes** (was: "Resume or start new?" prompt)
+  - No-arg invocation now **auto-continues the most recent active trace** (was: list top 3 and ask)
+  - L0 and L1 tasks now proceed immediately after classification (was: "full flow or go to Build?" prompt)
+  - Plan-approved pause simplified to one line: "Run `/sextant` to build." (was: 5-line option box)
+  - Build-complete pause simplified to one line: "Run `/sextant` to verify and close."
+  - Record fast-close with no signals now closes silently (was: "Confirm? [y/n]" prompt)
+  - Meaningful pause points unchanged: L2 escalation, reviewer rejection, verify failure,
+    scope creep, durable knowledge delta
+
+### Fixed
+
+- `cli/status.py` — Gate 1 and Gate 2 pending messages referenced `/sextant-review`
+  (a command that has never existed). Corrected to `re-run /sextant-spec` and
+  `re-run /sextant-plan` respectively. This was an incomplete fix from v0.0.3.
+
+### Design note
+
+v0.0.4 is a default-path polish release. No phases, roles, gates, or review behavior
+changed. The goal is to make Sextant feel coherent and trustworthy on first contact.
+
 ## [0.0.3] - 2026-04-19
 
 ### Added

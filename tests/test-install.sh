@@ -67,18 +67,18 @@ assert_file "$TMP_HOME/.claude/commands/sextant-verify.md"
 
 # ── 3. Output messages ────────────────────────────────────────────────
 
-suite "install.sh --project: prints next-step instructions"
+suite "install.sh --project: default install runs snippet and bootstrap"
 output=$(bash "$REPO_ROOT/adapters/claude-code/install.sh" \
              --project --path "$TMP_PROJECT" 2>&1)
-if echo "$output" | grep -q "CLAUDE.md.snippet"; then
-    ok "output mentions CLAUDE.md.snippet"
+if echo "$output" | grep -qi "snippet"; then
+    ok "output mentions snippet (default injection ran)"
 else
-    fail "output missing CLAUDE.md.snippet reference"
+    fail "output missing snippet reference — default injection may not have run"
 fi
-if echo "$output" | grep -q "bootstrap"; then
-    ok "output mentions bootstrap script"
+if echo "$output" | grep -q "bootstrap\|Knowledge files\|knowledge"; then
+    ok "output mentions bootstrap/knowledge files (default bootstrap ran)"
 else
-    fail "output missing bootstrap script reference"
+    fail "output missing bootstrap reference — default bootstrap may not have run"
 fi
 
 summary

@@ -26,6 +26,11 @@ orchestrates them so you don't have to do it manually step by step.
 1. After plan review — you must decide whether this is the right implementation plan
 2. After build — you must review scope before verification begins
 3. After verify failure — reviewer or tool failures require your resolution
+4. On level escalation — L2 requires explicit acknowledgment before proceeding
+5. On scope creep — unresolved flags block verification
+6. On durable knowledge delta — only when a writeback needs your confirmation
+
+Everything else runs silently on the happy path.
 
 On a happy-path L1 task the expected sequence is:
 
@@ -44,10 +49,10 @@ On a happy-path L1 task the expected sequence is:
 **If a task description is provided:**
 
 a. Generate a slug from the description (lowercase, hyphens, max 40 chars).
-   Check if `.sextant/traces/<date>-<slug>/` already exists.
-   If it exists: ask — "Found active task `<task_id>`. Resume it, or start a new task? [resume / new]"
-   If new: proceed to Step 2 (start new task).
-   If resume: proceed to Step 3 (continue from current stage).
+   Check if `.sextant/traces/<date>-<slug>/` already exists and has no `record.md`.
+   If it exists and is active: **auto-resume** — proceed to Step 3 without asking.
+   If it exists and is complete (has `record.md`): start a new task, append `-2` to slug.
+   If it does not exist: proceed to Step 2 (start new task).
 
 b. If the argument looks like an existing `task_id` (matches a directory name in
    `.sextant/traces/`): treat as resume, go to Step 3.
@@ -56,10 +61,10 @@ b. If the argument looks like an existing `task_id` (matches a directory name in
 
 c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`.
    Sort by modification time (newest first).
-   If one found: print brief status (task_id, current stage, recommended next action)
-   and proceed to Step 3.
-   If multiple found: list the top 3 with stages and ask which to resume.
+   If one or more found: **auto-continue the most recent one** — print one line of
+   status (`task_id | stage | next action`) and proceed to Step 3.
    If none found: print "No active task. Run `/sextant <task description>` to start."
+   and stop.
 
 ---
 
@@ -68,11 +73,9 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 2a. **Classify task level** using `core/rules/task-classification.md`.
     Display: `Task level: <L0|L1|L2> — <reason>`
 
-    For L0 tasks: ask —
-    "This looks like a small task. Run the full Spec→Plan→Build→Verify→Record flow, or
-    use `--force-l0` to go straight to Build? [full / build]"
-    - If "build": skip to Step 3b (build stage).
-    - If "full": continue with spec below.
+    For L2 tasks: print a one-line escalation notice and confirm before proceeding:
+    "This task is L2 (high-risk). Proceeding with full gate enforcement. Continue? [y/n]"
+    For L0 and L1: proceed immediately without asking.
 
 2b. **Create trace directory**: `.sextant/traces/<task_id>/` where `task_id` is
     `<YYYY-MM-DD>-<slug>`. If the directory already exists, append `-2`, `-3`, etc.
@@ -100,14 +103,9 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 
 2f. **Check spec verdict.**
     If verdict is `rejected` or `approved-with-conditions` (with unresolved conditions):
-      Display the reviewer's concerns clearly.
-      Print:
+      Display the reviewer's concerns clearly. Print:
       ```
-      ── Spec review: needs revision ──────────────────────
-      Address the concerns above, then either:
-        /sextant "<revised description>"   start over with revised description
-        /sextant-spec <task_id>            re-run spec subagent on this trace
-      ─────────────────────────────────────────────────────
+      Spec needs revision. Address the concerns above, then run `/sextant "<revised description>"`.
       ```
       Stop.
 
@@ -128,10 +126,7 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 2i. **Check plan verdict.**
     If rejected: display conditions. Print:
     ```
-    ── Plan review: rejected ────────────────────────────
-    Address the plan concerns above, then run:
-      /sextant-plan <task_id>   re-run the planner with revised spec
-    ─────────────────────────────────────────────────────
+    Plan rejected. Address the concerns above, then run `/sextant-plan <task_id>`.
     ```
     Stop.
 
@@ -141,13 +136,7 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 2j. **Pause — implementation decision point.**
     Print:
     ```
-    ── Plan approved ────────────────────────────────────
-    Review the plan above. When ready to implement:
-
-      /sextant           proceed to Build
-      /sextant-build     same, with explicit stage control
-      /sextant-status    review full task state before deciding
-    ─────────────────────────────────────────────────────
+    Plan approved. Review the plan above, then run `/sextant` to build.
     ```
     Stop.
 
@@ -155,7 +144,7 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 
 ### Step 3: Continue from current stage
 
-Called when resuming an active task (Step 1b or 1c).
+Called when resuming an active task (Step 1a or 1c).
 
 Detect current stage by inspecting which artifacts exist in the trace directory:
 
@@ -163,9 +152,7 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     → Run Plan + Plan Review. Go to Steps 2g–2j.
 
 **3b. Has `review-plan.md` (approved) but no `build-summary.md`:**
-    → Ready to build. Show plan summary (candidate name, footprint, 2-line rationale).
-
-    Print: "Proceeding with: `<candidate>`. Starting build..."
+    → Print: "Building: `<candidate>`…" and invoke the builder subagent.
 
     Invoke `sextant-builder` subagent with:
     - Approved spec artifact
@@ -175,25 +162,19 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     Save output to `.sextant/traces/<task_id>/build-summary.md`.
 
     Check `scope_creep_flags`. If non-empty:
-      Display each flag.
-      Print:
+      Display each flag. Print:
       ```
-      ── Scope creep detected ─────────────────────────────
-      These items exceeded plan scope. Resolve each before verifying:
-        accept   → edit plan.md to include this item, then re-run build
-        reject   → mark as out-of-scope in build-summary.md
-        defer    → note as future work, exclude from this build
-      
-      Run /sextant-build <task_id> for explicit build stage control.
-      ─────────────────────────────────────────────────────
+      Scope creep detected. For each flag, add a resolution field to build-summary.md:
+        resolution: accept   → also update plan.md to include this item
+        resolution: reject   → marks item as out-of-scope
+        resolution: defer    → notes as future work, excluded from this build
+      Then re-run `/sextant` to continue.
       ```
       Stop.
 
-    If no blocking flags: pause. Print:
+    If no blocking flags:
     ```
-    ── Build complete ───────────────────────────────────
-    Run /sextant to verify and close this task.
-    ─────────────────────────────────────────────────────
+    Build complete. Run `/sextant` to verify and close.
     ```
     Stop.
 
@@ -204,14 +185,14 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     → Run fast-close Record analysis. Go to Step 5.
 
 **3e. Has `record.md`:**
-    Print: "Task `<task_id>` is already complete. Run `/sextant-status` to view trace."
+    Print: "Task `<task_id>` is already complete."
 
 **3f. Has `spec.md` but no `review-spec.md`:**
     → Spec written but not reviewed yet. Run reviewer (Steps 2e–2f).
 
 **3g. Has `review-plan.md` with unresolved conditions or verdict `rejected`:**
-    → Gate blocked. Show the rejection reason. Print:
-    "Plan review failed. Run `/sextant-plan <task_id>` to re-run the planner."
+    → Gate blocked. Show the rejection reason.
+    Print: "Plan review failed. Run `/sextant-plan <task_id>` to re-run the planner."
     Stop.
 
 ---
@@ -223,7 +204,7 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
 
 4b. **Lint pre-check**: run `sextant lint <task_id>` (if the CLI is available).
     If errors (exit code 1): display the report. Stop.
-    If unavailable (CLI not installed): skip and note it.
+    If unavailable (CLI not installed): print "WARNING: sextant lint unavailable, skipping static checks." and continue.
 
 4c. **Auto-detect verify commands** if `verify_commands` is not set in `SEXTANT.md`:
 
@@ -238,14 +219,16 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     - `Cargo.toml` exists → add `cargo test`
 
     Print detected commands:
-    "No `verify_commands` found in SEXTANT.md. Detected: [list]"
-    "Proceeding. Add `verify_commands:` to SEXTANT.md to pin these permanently."
+    "No `verify_commands` in SEXTANT.md. Detected: [list]. Proceeding."
 
     If no commands detected: ask the user to provide them. Do not proceed until confirmed.
 
 4d. **Run each verify command** via Bash. Capture output. If any command fails:
-    Display the failure output clearly. Stop. Print:
-    "Verification failed. Fix the above and run `/sextant` to retry."
+    Display the failure output. Print:
+    ```
+    Verification failed. Fix the above and run `/sextant` to retry.
+    ```
+    Stop.
 
 4e. **Invoke `sextant-reviewer` subagent** with:
     - `stage: build`
@@ -260,8 +243,11 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     re-invoke the reviewer subagent (once). If still missing, stop and report the issue.
 
 4g. **Check verdict**.
-    If `rejected`: display conditions clearly. Stop. Print:
-    "Build review failed. Resolve the above and run `/sextant` to re-verify."
+    If `rejected`: display conditions clearly. Print:
+    ```
+    Build review failed. Resolve the above and run `/sextant` to re-verify.
+    ```
+    Stop.
 
     If approved or approved-with-conditions: continue to Step 5.
 
@@ -280,33 +266,20 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     - Architecture-level keywords in build-summary ("redesign", "migrate", "replace",
       "new pattern", "deprecate") → likely EVOLUTION.md or PROJECT_EVOLUTION_LOG.md entry
 
-5b. **If no signals found**: print:
-    ```
-    ── Record: fast close ───────────────────────────────
-    No durable knowledge delta detected.
+5b. **If no signals found**: create a minimal `record.md` (all P5 answers: no,
+    skip_reason: "No durable changes detected.") and go to Step 5d. No prompt needed.
 
-    Closing task without knowledge writebacks.
-    Confirm? [y/n]
-    ─────────────────────────────────────────────────────
-    ```
-    On "y": create a minimal `record.md` (all P5 answers: no, skip_reason: "No durable
-    changes detected by signal analysis.") and go to Step 5d.
-    On "n": run the full P5 checklist (Step 5c).
-
-5c. **If signals found** (or user declined fast close):
+5c. **If signals found**:
 
     Print a pre-analyzed recommendation for each signal:
     ```
-    ── Record: knowledge writebacks ─────────────────────
-    Detected signals:
+    Knowledge writebacks detected:
       [signal]: <description> → <target file>
 
-    For each: accept and I'll draft the entry, or skip.
-    ─────────────────────────────────────────────────────
     ```
 
-    For each accepted writeback: read the target file, draft a specific entry,
-    present it for confirmation, then apply it with `Edit`.
+    For each signal: draft the entry, show it inline, then prompt [y/n] before applying.
+    On y: apply with `Edit`. On n: skip and move to next signal.
 
     Fill in the `record.md` artifact with the P5 checklist and writeback entries.
     Write to `.sextant/traces/<task_id>/record.md`.
@@ -318,13 +291,8 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
 
 5e. **Print final summary**:
     ```
-    ── Task complete ─────────────────────────────────────
-    Task:  <task_id>
-    Level: <L0|L1|L2>  |  Writebacks: <n>
+    Task complete: <task_id> (L<n>) — <one-line summary>
     Trace: .sextant/traces/<task_id>/
-
-    Knowledge updated. The next /sextant will load these changes as context.
-    ──────────────────────────────────────────────────────
     ```
 
 ---

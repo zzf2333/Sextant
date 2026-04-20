@@ -24,10 +24,7 @@ The adapter does not implement anything the CLI will not also implement.
 ```sh
 git clone https://github.com/SaoNian/Sextant
 cd Sextant
-./adapters/claude-code/install.sh --project \
-  --path /path/to/your-project \
-  --bootstrap \
-  --with-snippet
+./adapters/claude-code/install.sh --project --path /path/to/your-project
 ```
 
 This single command:
@@ -35,24 +32,31 @@ This single command:
 2. Initializes project knowledge files (`SEXTANT.md`, `PROJECT_EVOLUTION_LOG.md`, `hook-registry.json`)
 3. Appends the Sextant protocol snippet to `CLAUDE.md`
 
-After install, your project is ready to use.
+After install, your project is ready to use. If you need to update the CLAUDE.md snippet later, re-run with `--force`.
 
 ### User-level install (applies to all projects)
 
 ```sh
-./adapters/claude-code/install.sh --user --bootstrap --with-snippet
+./adapters/claude-code/install.sh --user
+```
+
+### Install without snippet or bootstrap (agents and commands only)
+
+```sh
+./adapters/claude-code/install.sh --project --path /your/project \
+  --skip-snippet --skip-bootstrap
 ```
 
 ### Manual install (step by step)
 
 ```sh
 # 1. Install agents and commands only
-./adapters/claude-code/install.sh --project --path /your/project
+./adapters/claude-code/install.sh --project --path /your/project --skip-snippet --skip-bootstrap
 
-# 2. Append CLAUDE.md snippet
+# 2. Append CLAUDE.md snippet manually
 cat adapters/claude-code/CLAUDE.md.snippet >> /your/project/CLAUDE.md
 
-# 3. Initialize knowledge files
+# 3. Initialize knowledge files manually
 scripts/bootstrap.sh --target /your/project
 
 # 4. (Optional) Enable session hooks — see hooks/README.md

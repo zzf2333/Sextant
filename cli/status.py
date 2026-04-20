@@ -92,7 +92,7 @@ def infer_stage(artifacts: list[ArtifactInfo]) -> tuple[str, Optional[str]]:
         return "Pre-Spec", "not started — run /sextant-spec"
 
     if not exists("review-spec.md"):
-        return "Spec", "Gate 1 pending (run /sextant-review --stage spec)"
+        return "Spec", "Gate 1 pending (re-run /sextant-spec to generate review)"
 
     if not _is_approved(verdict("review-spec.md")):
         return "Spec (awaiting review approval)", f"Gate 1 pending (review-spec verdict: {verdict('review-spec.md')})"
@@ -102,7 +102,7 @@ def infer_stage(artifacts: list[ArtifactInfo]) -> tuple[str, Optional[str]]:
         return "Plan", None  # waiting for /sextant-plan
 
     if not exists("review-plan.md"):
-        return "Plan", "Gate 2 pending (run /sextant-review --stage plan)"
+        return "Plan", "Gate 2 pending (re-run /sextant-plan to generate review)"
 
     if not _is_approved(verdict("review-plan.md")):
         return "Plan (awaiting review approval)", f"Gate 2 pending (review-plan verdict: {verdict('review-plan.md')})"

@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.3-3b82f6?style=flat-square" alt="v0.0.3"/>
+  <img src="https://img.shields.io/badge/version-0.0.4-3b82f6?style=flat-square" alt="v0.0.4"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -129,10 +129,7 @@ git clone https://github.com/SaoNian/Sextant
 cd Sextant
 
 # One-shot install: agents, commands, knowledge files, CLAUDE.md snippet
-./adapters/claude-code/install.sh --project \
-  --path /path/to/your-project \
-  --bootstrap \
-  --with-snippet
+./adapters/claude-code/install.sh --project --path /path/to/your-project
 ```
 
 Then start your first task in Claude Code:
@@ -166,7 +163,7 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 
 ## Status
 
-**v0.0.3** — Claude Code adapter usability release.
+**v0.0.4** — Default-path polish release.
 
 | Component               | Status                                                                      |
 | ----------------------- | --------------------------------------------------------------------------- |
