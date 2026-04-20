@@ -135,7 +135,7 @@ run_check() {
     # knowledge files
     KNOWLEDGE_OK=1
     for kf in SEXTANT.md PROJECT_EVOLUTION_LOG.md hook-registry.json; do
-        if [ -f "$PROJECT_PATH/$kf" ]; then
+        if [ -f "$PROJECT_PATH/.sextant/$kf" ]; then
             _ok "Knowledge file: $kf"
         else
             _warn "Knowledge file missing: $kf (run with --bootstrap)"
@@ -246,7 +246,7 @@ if ! grep -q "Sextant Engineering Protocol" "$DEST_CLAUDE_MD" 2>/dev/null; then
 fi
 
 for kf in SEXTANT.md PROJECT_EVOLUTION_LOG.md hook-registry.json; do
-    if [ ! -f "$PROJECT_PATH/$kf" ]; then
+    if [ ! -f "$PROJECT_PATH/.sextant/$kf" ]; then
         NEED_BOOTSTRAP=1
         break
     fi

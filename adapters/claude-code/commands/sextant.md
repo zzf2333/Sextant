@@ -83,10 +83,10 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 
 2c. **Load knowledge context**: read the following files if present. Skip missing files
     silently — their absence means no history yet.
-    - `SEXTANT.md`
-    - `PROJECT_EVOLUTION_LOG.md`
+    - `.sextant/SEXTANT.md`
+    - `.sextant/PROJECT_EVOLUTION_LOG.md`
     - All `modules/*/EVOLUTION.md` files
-    - `hook-registry.json`
+    - `.sextant/hook-registry.json`
 
 2d. **Invoke `sextant-spec` subagent** with:
     - The task description
@@ -113,7 +113,7 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 
 2g. **Invoke `sextant-planner` subagent** with:
     - The approved spec artifact
-    - `SEXTANT.md`, relevant `modules/*/EVOLUTION.md`, `hook-registry.json`
+    - `.sextant/SEXTANT.md`, relevant `modules/*/EVOLUTION.md`, `.sextant/hook-registry.json`
 
     Save output to `.sextant/traces/<task_id>/plan.md`.
 
@@ -157,7 +157,7 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     Invoke `sextant-builder` subagent with:
     - Approved spec artifact
     - Approved plan artifact
-    - `SEXTANT.md` and `hook-registry.json` if present
+    - `.sextant/SEXTANT.md` and `.sextant/hook-registry.json` if present
 
     Save output to `.sextant/traces/<task_id>/build-summary.md`.
 
@@ -206,7 +206,7 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     If errors (exit code 1): display the report. Stop.
     If unavailable (CLI not installed): print "WARNING: sextant lint unavailable, skipping static checks." and continue.
 
-4c. **Auto-detect verify commands** if `verify_commands` is not set in `SEXTANT.md`:
+4c. **Auto-detect verify commands** if `verify_commands` is not set in `.sextant/SEXTANT.md`:
 
     Check project root for the following signals (in order):
     - `package.json` exists → read its `scripts` field:
@@ -219,7 +219,7 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     - `Cargo.toml` exists → add `cargo test`
 
     Print detected commands:
-    "No `verify_commands` in SEXTANT.md. Detected: [list]. Proceeding."
+    "No `verify_commands` in `.sextant/SEXTANT.md`. Detected: [list]. Proceeding."
 
     If no commands detected: ask the user to provide them. Do not proceed until confirmed.
 
@@ -260,11 +260,11 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
 
     Signal indicators:
     - New directories created under `modules/` → likely EVOLUTION.md entry
-    - Changes to `package.json`, `pyproject.toml`, `go.mod` (new dependencies) → likely SEXTANT.md update
-    - New entries in `hook-registry.json` → already recorded
-    - More than 2 modules touched → likely PROJECT_EVOLUTION_LOG.md entry
+    - Changes to `package.json`, `pyproject.toml`, `go.mod` (new dependencies) → likely `.sextant/SEXTANT.md` update
+    - New entries in `.sextant/hook-registry.json` → already recorded
+    - More than 2 modules touched → likely `.sextant/PROJECT_EVOLUTION_LOG.md` entry
     - Architecture-level keywords in build-summary ("redesign", "migrate", "replace",
-      "new pattern", "deprecate") → likely EVOLUTION.md or PROJECT_EVOLUTION_LOG.md entry
+      "new pattern", "deprecate") → likely EVOLUTION.md or `.sextant/PROJECT_EVOLUTION_LOG.md` entry
 
 5b. **If no signals found**: create a minimal `record.md` (all P5 answers: no,
     skip_reason: "No durable changes detected.") and go to Step 5d. No prompt needed.

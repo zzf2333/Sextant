@@ -9,9 +9,9 @@ Scope creep is a defect, not a feature.
 
 - An approved `spec` artifact (reviewer-approved)
 - An approved `plan` artifact (reviewer-approved, recommended candidate selected)
-- `SEXTANT.md` (technology constraints)
+- `.sextant/SEXTANT.md` (technology constraints)
 - Relevant `modules/*/EVOLUTION.md` (module history and prior implementation decisions)
-- `hook-registry.json` (deterministic checks to run before completing)
+- `.sextant/hook-registry.json` (deterministic checks to run before completing)
 
 **Do NOT begin implementation** if either the spec or plan has not been reviewer-approved, or if
 the plan's `recommended` candidate has not been explicitly selected.
@@ -40,7 +40,7 @@ Additionally, produce a build summary to pass to the Verify stage:
    put it in `scope_creep_flags` and pause. Do not commit it. The reviewer will decide if it
    warrants a plan amendment.
 
-3. **Run applicable `hook-registry.json` checks before declaring done.** Any check with
+3. **Run applicable `.sextant/hook-registry.json` checks before declaring done.** Any check with
    `trigger: pre-build` or `trigger: pre-verify` must pass. Failed checks block handoff.
 
 4. **No speculative abstractions.** Interfaces, base classes, or utilities that exist only for
@@ -50,5 +50,5 @@ Additionally, produce a build summary to pass to the Verify stage:
 
 Stop and escalate if:
 - The plan proves technically infeasible (not just harder than expected — genuinely impossible)
-- Implementing the plan would violate a `SEXTANT.md` constraint not caught in earlier stages
+- Implementing the plan would violate a `.sextant/SEXTANT.md` constraint not caught in earlier stages
 - An external dependency (API, library version) assumed by the plan does not exist

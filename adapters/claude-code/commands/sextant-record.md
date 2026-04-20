@@ -31,14 +31,14 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
    Scan `build-summary.md` and the recent diff for indicators:
    - New directories under `modules/` → signals EVOLUTION.md entry needed
-   - New dependencies in `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml` → signals SEXTANT.md update
-   - Cross-module changes (more than 2 modules touched) → signals PROJECT_EVOLUTION_LOG.md entry
+   - New dependencies in `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml` → signals `.sextant/SEXTANT.md` update
+   - Cross-module changes (more than 2 modules touched) → signals `.sextant/PROJECT_EVOLUTION_LOG.md` entry
    - Keywords in build-summary: "redesign", "migrate", "replace", "deprecate", "new pattern",
      "new constraint", "removed", "breaking" → signals likely architectural record
    - Unresolved scope_creep_flags that were deferred → signals follow-up tracking
 
-   Assign each signal a target file (SEXTANT.md / EVOLUTION.md / PROJECT_EVOLUTION_LOG.md /
-   hook-registry.json).
+   Assign each signal a target file (`.sextant/SEXTANT.md` / EVOLUTION.md / `.sextant/PROJECT_EVOLUTION_LOG.md` /
+   `.sextant/hook-registry.json`).
 
 3. **Fast-close path** (if no signals AND `--full` not set):
 
@@ -65,7 +65,7 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
    P5 Writebacks for task: <task_id>
 
    1. Did this task change global technical constraints or defaults?
-      → SEXTANT.md
+      → `.sextant/SEXTANT.md`
       [Detected: new dependency X added]  Recommended: yes
 
    2. Did this task produce a design/spec/plan lesson for a specific module?
@@ -73,11 +73,11 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
       [Detected: new module auth/ created]  Recommended: yes
 
    3. Did this task produce a cross-module or project-level decision?
-      → PROJECT_EVOLUTION_LOG.md
+      → `.sextant/PROJECT_EVOLUTION_LOG.md`
       [No signal detected]  Recommended: no
 
    4. Did this task reveal an execution failure preventable by a deterministic check?
-      → hook-registry.json
+      → `.sextant/hook-registry.json`
       [No signal detected]  Recommended: no
 
    Answer each: yes / no (press Enter to accept recommendation)

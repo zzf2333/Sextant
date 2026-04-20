@@ -19,16 +19,16 @@ overwrite existing knowledge files (trace files are never touched).
 
 1a. **Existing file check** (skip if `--force` provided):
 
-Check for these files at project root:
-- `SEXTANT.md`
-- `PROJECT_EVOLUTION_LOG.md`
-- `hook-registry.json`
+Check for these files:
+- `.sextant/SEXTANT.md`
+- `.sextant/PROJECT_EVOLUTION_LOG.md`
+- `.sextant/hook-registry.json`
 - Any `modules/*/EVOLUTION.md`
 
 If any exist:
 ```
 The following knowledge files already exist:
-  - SEXTANT.md
+  - .sextant/SEXTANT.md
   - modules/core/EVOLUTION.md
 
 Use --force to overwrite, or remove them manually and run again.
@@ -199,7 +199,7 @@ Note: `src/` alone (as a directory containing files, not subdirectories) → sin
 
 If no modules detected after Steps 3a + 3b:
 - Create **no** `modules/` directory
-- Generate only the three global knowledge files (SEXTANT.md, PROJECT_EVOLUTION_LOG.md, hook-registry.json)
+- Generate only the three global knowledge files (`.sextant/SEXTANT.md`, `.sextant/PROJECT_EVOLUTION_LOG.md`, `.sextant/hook-registry.json`)
 - Print: `No modules detected. Creating global knowledge files only.`
 
 ---
@@ -262,9 +262,9 @@ Verification commands:
   - pnpm run lint
 
 Files to create:
-  ✓ SEXTANT.md
-  ✓ PROJECT_EVOLUTION_LOG.md
-  ✓ hook-registry.json
+  ✓ .sextant/SEXTANT.md
+  ✓ .sextant/PROJECT_EVOLUTION_LOG.md
+  ✓ .sextant/hook-registry.json
   ✓ modules/apps-web/EVOLUTION.md
   ✓ modules/packages-ui/EVOLUTION.md
   ✓ modules/packages-core/EVOLUTION.md
@@ -292,7 +292,14 @@ Proceed with initialization? [y/n]
 
 ### Step 7: Generate knowledge files
 
-**7a. Generate `SEXTANT.md`**
+**7.0. Create `.sextant/` directory**
+
+If `.sextant/` does not already exist:
+```bash
+mkdir -p <project_root>/.sextant
+```
+
+**7a. Generate `.sextant/SEXTANT.md`**
 
 Use the SEXTANT.md template structure. Auto-fill detected values:
 - `Language:` → detected Language (or "Not detected")
@@ -309,15 +316,15 @@ Leave as template comment placeholders:
 
 Auto-fill `verify_commands`: uncomment and fill if commands detected; leave commented if none.
 
-Write to `<project_root>/SEXTANT.md`.
+Write to `<project_root>/.sextant/SEXTANT.md`.
 
-**7b. Generate `PROJECT_EVOLUTION_LOG.md`**
+**7b. Generate `.sextant/PROJECT_EVOLUTION_LOG.md`**
 
 Copy the PROJECT_EVOLUTION_LOG template as-is (no auto-fill).
 
-Write to `<project_root>/PROJECT_EVOLUTION_LOG.md`.
+Write to `<project_root>/.sextant/PROJECT_EVOLUTION_LOG.md`.
 
-**7c. Generate `hook-registry.json`**
+**7c. Generate `.sextant/hook-registry.json`**
 
 ```json
 {
@@ -334,7 +341,7 @@ Write to `<project_root>/PROJECT_EVOLUTION_LOG.md`.
 }
 ```
 
-Write to `<project_root>/hook-registry.json`.
+Write to `<project_root>/.sextant/hook-registry.json`.
 
 **7d. Generate `modules/*/EVOLUTION.md` for each detected module**
 
@@ -357,15 +364,15 @@ Write `<project_root>/modules/<module_slug>/EVOLUTION.md`.
 ── Initialization complete ────────────────────────────────
 
 Created:
-  ✓ SEXTANT.md
-  ✓ PROJECT_EVOLUTION_LOG.md
-  ✓ hook-registry.json
+  ✓ .sextant/SEXTANT.md
+  ✓ .sextant/PROJECT_EVOLUTION_LOG.md
+  ✓ .sextant/hook-registry.json
   ✓ modules/apps-web/EVOLUTION.md
   ✓ modules/packages-ui/EVOLUTION.md
   ✓ modules/packages-core/EVOLUTION.md
 
 Next steps:
-  1. Review SEXTANT.md and fill in the placeholders:
+  1. Review .sextant/SEXTANT.md and fill in the placeholders:
      - Default Preferences
      - Explicit Non-Goals
      - Known Constraints
@@ -405,6 +412,6 @@ If any file write fails, print the error and stop. Do NOT leave partial state �
 ## Notes
 
 - This command is idempotent with `--force`. Re-running regenerates all knowledge files from current project state.
-- Detection is best-effort. If the result is incorrect, edit `SEXTANT.md` — it is just a markdown file.
+- Detection is best-effort. If the result is incorrect, edit `.sextant/SEXTANT.md` — it is just a markdown file.
 - `.sextant/traces/` is never created by this command. It is created on first task execution via `/sextant <description>`.
 - For non-standard project structures, initialize with this command then adjust the generated files manually.

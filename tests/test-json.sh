@@ -47,7 +47,7 @@ assert_contains "$f" "PreToolUse" "settings.example: PreToolUse event hook"
 # ── 4. Bootstrapped hook-registry.json (if present) ──────────────────
 
 suite "project hook-registry.json (if bootstrapped)"
-bootstrapped="$REPO_ROOT/hook-registry.json"
+bootstrapped="$REPO_ROOT/.sextant/hook-registry.json"
 if [ -f "$bootstrapped" ]; then
     assert_json_valid "$bootstrapped"
     assert_contains "$bootstrapped" '"hooks"' "hook-registry.json: hooks key present"

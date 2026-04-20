@@ -36,10 +36,10 @@ If no task description is provided, ask the user: "What do you want to accomplis
 
 4. **Load knowledge context**: load all project knowledge files before invoking the spec
    subagent. This is how past tasks inform new ones. Load and pass to subagent:
-   - `SEXTANT.md` (required — if missing, note it and continue without)
-   - `PROJECT_EVOLUTION_LOG.md` if present
+   - `.sextant/SEXTANT.md` (required — if missing, note it and continue without)
+   - `.sextant/PROJECT_EVOLUTION_LOG.md` if present
    - All `modules/*/EVOLUTION.md` files if present
-   - `hook-registry.json` if present
+   - `.sextant/hook-registry.json` if present
 
    Missing files are skipped silently — their absence means no history yet.
 

@@ -23,9 +23,9 @@ else
 fi
 
 suite "bootstrap.sh: creates 4 knowledge files"
-assert_file "$TMP_TARGET/SEXTANT.md"
-assert_file "$TMP_TARGET/PROJECT_EVOLUTION_LOG.md"
-assert_file "$TMP_TARGET/hook-registry.json"
+assert_file "$TMP_TARGET/.sextant/SEXTANT.md"
+assert_file "$TMP_TARGET/.sextant/PROJECT_EVOLUTION_LOG.md"
+assert_file "$TMP_TARGET/.sextant/hook-registry.json"
 
 suite "bootstrap.sh: creates directory layout"
 assert_dir "$TMP_TARGET/modules"
@@ -35,16 +35,16 @@ assert_file "$TMP_TARGET/.sextant/traces/.gitkeep"
 # ── 2. Knowledge file content ─────────────────────────────────────────
 
 suite "bootstrap.sh: SEXTANT.md has expected sections"
-assert_contains "$TMP_TARGET/SEXTANT.md" "Current Tech Stack"
-assert_contains "$TMP_TARGET/SEXTANT.md" "Default Preferences"
-assert_contains "$TMP_TARGET/SEXTANT.md" "Explicit Non-Goals"
-assert_contains "$TMP_TARGET/SEXTANT.md" "Known Constraints"
+assert_contains "$TMP_TARGET/.sextant/SEXTANT.md" "Current Tech Stack"
+assert_contains "$TMP_TARGET/.sextant/SEXTANT.md" "Default Preferences"
+assert_contains "$TMP_TARGET/.sextant/SEXTANT.md" "Explicit Non-Goals"
+assert_contains "$TMP_TARGET/.sextant/SEXTANT.md" "Known Constraints"
 
 suite "bootstrap.sh: hook-registry.json is valid JSON"
-assert_json_valid "$TMP_TARGET/hook-registry.json"
+assert_json_valid "$TMP_TARGET/.sextant/hook-registry.json"
 
 suite "bootstrap.sh: hook-registry.json has hooks key"
-assert_contains "$TMP_TARGET/hook-registry.json" '"hooks"'
+assert_contains "$TMP_TARGET/.sextant/hook-registry.json" '"hooks"'
 
 # ── 3. Idempotency ────────────────────────────────────────────────────
 
@@ -57,9 +57,9 @@ else
 fi
 
 suite "bootstrap.sh: second run preserves existing file content"
-echo "CUSTOM_CONTENT_MARKER" >> "$TMP_TARGET/SEXTANT.md"
+echo "CUSTOM_CONTENT_MARKER" >> "$TMP_TARGET/.sextant/SEXTANT.md"
 bash "$REPO_ROOT/scripts/bootstrap.sh" --target "$TMP_TARGET" > /dev/null 2>&1
-assert_contains "$TMP_TARGET/SEXTANT.md" "CUSTOM_CONTENT_MARKER" \
+assert_contains "$TMP_TARGET/.sextant/SEXTANT.md" "CUSTOM_CONTENT_MARKER" \
     "SEXTANT.md content preserved after second run"
 
 # ── 4. Module flag ────────────────────────────────────────────────────

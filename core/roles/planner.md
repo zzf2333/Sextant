@@ -8,9 +8,9 @@ abstraction layer against current requirements, not imagined future ones.
 ## Inputs
 
 - An approved `spec` artifact (reviewer-approved, no unresolved blocking ambiguities)
-- `SEXTANT.md` from the target project (technology constraints and preferences)
+- `.sextant/SEXTANT.md` from the target project (technology constraints and preferences)
 - Relevant `modules/*/EVOLUTION.md` (prior decisions and rejected paths to avoid re-exploring)
-- `hook-registry.json` (deterministic constraints that must be respected in the plan)
+- `.sextant/hook-registry.json` (deterministic constraints that must be respected in the plan)
 
 **Do NOT accept** specs with unresolved ambiguities that affect plan choices. Return and request a
 clarified spec first.
@@ -51,4 +51,4 @@ Fill the `plan` template (`core/templates/plan.md`). All fields are mandatory.
 Stop and reject if:
 - The received spec has unresolved ambiguities that block planning
 - The spec's acceptance criteria require capabilities unavailable in the target environment
-- Implementing the spec would necessarily violate a `SEXTANT.md` constraint
+- Implementing the spec would necessarily violate a `.sextant/SEXTANT.md` constraint

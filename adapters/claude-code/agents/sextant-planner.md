@@ -18,8 +18,8 @@ Read it before starting.
 
 The invoking command will pass you:
 - Path to the reviewer-approved spec artifact
-- Path to `SEXTANT.md` in the target project (read it)
-- Optionally: paths to relevant `modules/*/EVOLUTION.md` and `hook-registry.json`
+- Path to `.sextant/SEXTANT.md` in the target project (read it)
+- Optionally: paths to relevant `modules/*/EVOLUTION.md` and `.sextant/hook-registry.json`
 
 Do not proceed if the spec has not been reviewer-approved or has unresolved blocking ambiguities.
 

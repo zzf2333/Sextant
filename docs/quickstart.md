@@ -104,7 +104,7 @@ Run /sextant to verify and close this task.
 ```
 
 Sextant:
-1. Runs your project's verification commands (detected or from `SEXTANT.md`)
+1. Runs your project's verification commands (detected or from `.sextant/SEXTANT.md`)
 2. Runs the reviewer on the build diff
 3. If everything passes, runs a fast-close analysis for knowledge writebacks
 4. Closes the task trace
@@ -132,9 +132,9 @@ checked. Reviewer ran three times (spec, plan, build). Knowledge loop closed.
 
 ## Next steps
 
-### Fill in your SEXTANT.md
+### Fill in your `.sextant/SEXTANT.md`
 
-Open `SEXTANT.md` in your project root and fill in the tech stack and preferences:
+Open `.sextant/SEXTANT.md` in your project and fill in the tech stack and preferences:
 
 ```markdown
 ## Current Tech Stack
@@ -147,7 +147,7 @@ This makes every future task spec and plan more accurate.
 
 ### Pin your verify commands
 
-In `SEXTANT.md`, add a verification section:
+In `.sextant/SEXTANT.md`, add a verification section:
 
 ```yaml
 verify_commands:
@@ -184,7 +184,7 @@ resuming work after a break.
 → Run `/sextant-spec` first — it creates the spec and runs the reviewer automatically.
 
 **Verify failed — no verify commands detected**
-→ Add `verify_commands:` to your `SEXTANT.md`, or confirm commands when prompted.
+→ Add `verify_commands:` to your `.sextant/SEXTANT.md`, or confirm commands when prompted.
 
 **Lost track of where a task is**
 → Run `/sextant-status` — it shows stage, blockers, and the recommended next command.

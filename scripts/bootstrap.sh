@@ -40,20 +40,23 @@ copy_if_absent() {
     fi
 }
 
+# Ensure .sextant/ directory exists (knowledge files live here)
+mkdir -p "$TARGET/.sextant"
+
 # 1. SEXTANT.md
 copy_if_absent \
     "$KNOWLEDGE_DIR/SEXTANT.template.md" \
-    "$TARGET/SEXTANT.md"
+    "$TARGET/.sextant/SEXTANT.md"
 
 # 2. PROJECT_EVOLUTION_LOG.md
 copy_if_absent \
     "$KNOWLEDGE_DIR/PROJECT_EVOLUTION_LOG.template.md" \
-    "$TARGET/PROJECT_EVOLUTION_LOG.md"
+    "$TARGET/.sextant/PROJECT_EVOLUTION_LOG.md"
 
 # 3. hook-registry.json
 copy_if_absent \
     "$KNOWLEDGE_DIR/hook-registry.template.json" \
-    "$TARGET/hook-registry.json"
+    "$TARGET/.sextant/hook-registry.json"
 
 # 4. modules/ directory
 if [ ! -d "$TARGET/modules" ]; then
@@ -85,7 +88,7 @@ echo ""
 echo "Bootstrap complete."
 echo ""
 echo "Next steps:"
-echo "  1. Edit SEXTANT.md — fill in your tech stack, defaults, and non-goals."
+echo "  1. Edit .sextant/SEXTANT.md — fill in your tech stack, defaults, and non-goals."
 echo "  2. For each module, run:"
 echo "       $0 --target $TARGET --module <module-name>"
 echo "  3. Install the Claude Code adapter:"

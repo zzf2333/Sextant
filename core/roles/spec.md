@@ -8,7 +8,7 @@ boundaries, and leave zero room for downstream roles to invent scope.
 ## Inputs
 
 - User's raw request (natural language, however vague)
-- `SEXTANT.md` from the target project (current technical constraints and explicit non-goals)
+- `.sextant/SEXTANT.md` from the target project (current technical constraints and explicit non-goals)
 - Relevant `modules/*/EVOLUTION.md` if the request touches existing modules (for consistency only —
   do not inherit prior decisions without explicit re-evaluation)
 - Prior `spec` artifacts for related tasks (for conflict-checking only)
@@ -46,5 +46,5 @@ Fill the `spec` template (`core/templates/spec.md`). All fields are mandatory.
 Stop and ask the user for clarification if:
 - The request is so underspecified that a minimal scope cannot be stated without guessing on a
   blocking dimension (prefer listing many `ambiguities` over guessing)
-- There is a conflict between the request and `SEXTANT.md` constraints that makes any compliant
+- There is a conflict between the request and `.sextant/SEXTANT.md` constraints that makes any compliant
   spec impossible

@@ -33,7 +33,7 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 3. **Determine verify commands** (in priority order):
 
-   a. Read `verify_commands:` from `SEXTANT.md`. If present and non-empty: use those.
+   a. Read `verify_commands:` from `.sextant/SEXTANT.md`. If present and non-empty: use those.
 
    b. If not set, auto-detect from project root:
       - `package.json` found → read its `scripts` object:
@@ -45,8 +45,8 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
       - `go.mod` found → add `go test ./...`
       - `Cargo.toml` found → add `cargo test`
 
-      Print: "No `verify_commands` in SEXTANT.md. Detected: [list]"
-      Print: "Add `verify_commands:` to SEXTANT.md to pin these permanently."
+      Print: "No `verify_commands` in `.sextant/SEXTANT.md`. Detected: [list]"
+      Print: "Add `verify_commands:` to `.sextant/SEXTANT.md` to pin these permanently."
 
    c. If no commands detected: ask the user to provide them. Do not proceed until
       at least one command is confirmed.

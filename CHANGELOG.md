@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Knowledge files (`SEXTANT.md`, `PROJECT_EVOLUTION_LOG.md`, `hook-registry.json`) moved
+  from project root to `.sextant/` subdirectory. `bootstrap.sh` and `sextant-init` now
+  write to `.sextant/`; `install.sh` checks `.sextant/$kf`. All command, agent, role,
+  template, and doc references updated. **Breaking change for existing projects** — move
+  files manually: `mv SEXTANT.md PROJECT_EVOLUTION_LOG.md hook-registry.json .sextant/`.
+
 ## [0.0.6] - 2026-04-20
 
 ### Added

@@ -21,16 +21,16 @@ record_version: 1        # increment if record is amended after initial submissi
 Answer each question. For every "yes", create an entry in `knowledge_writebacks` below.
 
 - [ ] Did this task change the current global technical constraints or defaults?
-      → yes: update `SEXTANT.md`
+      → yes: update `.sextant/SEXTANT.md`
 
 - [ ] Did this task produce a design, spec, or plan lesson specific to a module?
       → yes: update `modules/<name>/EVOLUTION.md`
 
 - [ ] Did this task produce a cross-module or project-level architectural decision?
-      → yes: update `PROJECT_EVOLUTION_LOG.md`
+      → yes: update `.sextant/PROJECT_EVOLUTION_LOG.md`
 
 - [ ] Did this task reveal an execution failure that a deterministic check could prevent?
-      → yes: add a rule to `hook-registry.json`
+      → yes: add a rule to `.sextant/hook-registry.json`
 
 ---
 

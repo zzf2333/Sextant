@@ -26,8 +26,8 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 2. **Invoke `sextant-planner` subagent** with:
    - Path to the approved spec artifact
-   - Path to `SEXTANT.md`
-   - Paths to relevant `modules/*/EVOLUTION.md` and `hook-registry.json` if present
+   - Path to `.sextant/SEXTANT.md`
+   - Paths to relevant `modules/*/EVOLUTION.md` and `.sextant/hook-registry.json` if present
 
 3. **Save artifact**: write the subagent's output to `.sextant/traces/<task_id>/plan.md`
 

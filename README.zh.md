@@ -94,12 +94,12 @@ Verify 是阶段，不是角色。由确定性工具栈（tests / types / lint /
 
 四类知识文件住在你的项目里，随代码一起版本化。每类都有明确的失效时机——它不是档案馆：
 
-| 文件                       | 失效时机           | 内容                               |
-| -------------------------- | ------------------ | ---------------------------------- |
-| `SEXTANT.md`               | 技术约束变了       | 当前技术栈、明确不做什么、默认偏好 |
-| `modules/*/EVOLUTION.md`   | 模块历史路径变了   | 设计决策、被否定的路径、接受的权衡 |
-| `PROJECT_EVOLUTION_LOG.md` | 项目级长期决策更新 | 跨模块选择、架构权衡               |
-| `hook-registry.json`       | 规则本身变了       | 可机械检测的护栏、确定性门控       |
+| 文件                                 | 失效时机           | 内容                               |
+| ------------------------------------ | ------------------ | ---------------------------------- |
+| `.sextant/SEXTANT.md`                | 技术约束变了       | 当前技术栈、明确不做什么、默认偏好 |
+| `modules/*/EVOLUTION.md`             | 模块历史路径变了   | 设计决策、被否定的路径、接受的权衡 |
+| `.sextant/PROJECT_EVOLUTION_LOG.md`  | 项目级长期决策更新 | 跨模块选择、架构权衡               |
+| `.sextant/hook-registry.json`        | 规则本身变了       | 可机械检测的护栏、确定性门控       |
 
 **原则**：只保留会改变当前工程判断的内容。不做档案馆。
 
@@ -152,7 +152,7 @@ cd Sextant
 /sextant-init     # 接入已有项目 — 检测技术栈并生成知识文件
 ```
 
-每次 `record` 会更新项目知识文件（`SEXTANT.md`、`EVOLUTION.md`、`hook-registry.json`）；
+每次 `record` 会更新项目知识文件（`.sextant/SEXTANT.md`、`EVOLUTION.md`、`.sextant/hook-registry.json`）；
 下一个任务的 `spec` 会加载这些文件——这就是防止跨会话上下文失忆的知识循环。
 
 详细步骤见 `docs/quickstart.md`。

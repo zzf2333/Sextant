@@ -29,7 +29,7 @@ cd Sextant
 
 This single command:
 1. Installs all agents and slash commands
-2. Initializes project knowledge files (`SEXTANT.md`, `PROJECT_EVOLUTION_LOG.md`, `hook-registry.json`)
+2. Initializes project knowledge files (`.sextant/SEXTANT.md`, `.sextant/PROJECT_EVOLUTION_LOG.md`, `.sextant/hook-registry.json`)
 3. Appends the Sextant protocol snippet to `CLAUDE.md`
 
 After install, your project is ready to use. If you need to update the CLAUDE.md snippet later, re-run with `--force`.

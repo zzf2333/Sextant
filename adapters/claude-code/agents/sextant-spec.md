@@ -19,7 +19,7 @@ Read it before starting.
 
 The invoking command will pass you:
 - The user's raw request (however vague)
-- Path to `SEXTANT.md` in the target project (read it)
+- Path to `.sextant/SEXTANT.md` in the target project (read it)
 - Optionally: paths to relevant `modules/*/EVOLUTION.md`
 
 ## What You Produce

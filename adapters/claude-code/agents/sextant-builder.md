@@ -22,7 +22,7 @@ Read it before starting.
 The invoking command will pass you:
 - Path to the reviewer-approved spec artifact
 - Path to the reviewer-approved plan artifact (with `recommended` candidate selected)
-- Path to `SEXTANT.md` and `hook-registry.json` in the target project
+- Path to `.sextant/SEXTANT.md` and `.sextant/hook-registry.json` in the target project
 
 Do not begin if either spec or plan is not reviewer-approved.
 

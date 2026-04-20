@@ -31,7 +31,7 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 4. **Invoke `sextant-builder` subagent** with:
    - Path to the approved spec artifact
    - Path to the approved plan artifact
-   - Path to `SEXTANT.md` and `hook-registry.json` if present
+   - Path to `.sextant/SEXTANT.md` and `.sextant/hook-registry.json` if present
 
 5. **Builder performs implementation**: The subagent makes the actual code changes.
 

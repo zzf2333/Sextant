@@ -94,12 +94,12 @@ Override with `--force-l0`, `--force-l1`, or `--force-l2`.
 
 Four knowledge files live in your project, versioned alongside your code. Each has a defined invalidation condition so the system stays lean — it's not an archive:
 
-| File                       | Invalidated When                         | Content                                               |
-| -------------------------- | ---------------------------------------- | ----------------------------------------------------- |
-| `SEXTANT.md`               | Technical constraints change             | Current stack, explicit no-go rules, defaults         |
-| `modules/*/EVOLUTION.md`   | Module history path changes              | Design decisions, rejected paths, accepted trade-offs |
-| `PROJECT_EVOLUTION_LOG.md` | Project-level long-term decisions update | Cross-module choices, architecture trade-offs         |
-| `hook-registry.json`       | The rule itself changes                  | Machine-checkable guardrails, deterministic gates     |
+| File                                 | Invalidated When                         | Content                                               |
+| ------------------------------------ | ---------------------------------------- | ----------------------------------------------------- |
+| `.sextant/SEXTANT.md`                | Technical constraints change             | Current stack, explicit no-go rules, defaults         |
+| `modules/*/EVOLUTION.md`             | Module history path changes              | Design decisions, rejected paths, accepted trade-offs |
+| `.sextant/PROJECT_EVOLUTION_LOG.md`  | Project-level long-term decisions update | Cross-module choices, architecture trade-offs         |
+| `.sextant/hook-registry.json`        | The rule itself changes                  | Machine-checkable guardrails, deterministic gates     |
 
 **Principle:** Only keep content that would change a current engineering judgment. Not an archive.
 
@@ -154,8 +154,8 @@ For explicit stage control or L2 tasks (data model, auth, payment):
 /sextant-init     # onboard an existing project — detect stack and generate knowledge files
 ```
 
-Each `record` updates the project knowledge files (`SEXTANT.md`, `EVOLUTION.md`,
-`hook-registry.json`); the next task's `spec` loads them — this is the loop that
+Each `record` updates the project knowledge files (`.sextant/SEXTANT.md`, `EVOLUTION.md`,
+`.sextant/hook-registry.json`); the next task's `spec` loads them — this is the loop that
 prevents context amnesia across sessions.
 
 See `docs/quickstart.md` for a step-by-step walkthrough.

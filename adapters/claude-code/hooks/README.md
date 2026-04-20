@@ -70,7 +70,7 @@ repo itself (these files are templates here, not active hooks).
 
 The hooks in `settings.example.json` are starting points. You can extend them to
 check project-specific conditions — add your own entries to the `hooks` array or
-write corresponding shell commands that read `hook-registry.json` in your project root.
+write corresponding shell commands that read `.sextant/hook-registry.json` in your project root.
 
 See `core/knowledge/hook-registry.template.json` for the format of project-level
 deterministic rules.
