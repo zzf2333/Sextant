@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.4-3b82f6?style=flat-square" alt="v0.0.4"/>
+  <img src="https://img.shields.io/badge/version-0.0.5-3b82f6?style=flat-square" alt="v0.0.5"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -163,7 +163,7 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 
 ## Status
 
-**v0.0.4** — Default-path polish release.
+**v0.0.5** — Default-path polish release.
 
 | Component               | Status                                                                      |
 | ----------------------- | --------------------------------------------------------------------------- |
