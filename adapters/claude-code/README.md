@@ -22,7 +22,7 @@ The adapter does not implement anything the CLI will not also implement.
 ### One-shot install (recommended)
 
 ```sh
-git clone https://github.com/SaoNian/Sextant
+git clone https://github.com/zzf2333/Sextant
 cd Sextant
 ./adapters/claude-code/install.sh --project --path /path/to/your-project
 ```

@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-04-20
+
+### Changed
+
+- All repository URLs updated from `SaoNian/Sextant` to `zzf2333/Sextant`.
+  Affected files: `README.md`, `README.zh.md`, `adapters/claude-code/CLAUDE.md.snippet`,
+  `adapters/claude-code/README.md`, `docs/quickstart.md`.
+
 ## [0.0.4] - 2026-04-20
 
 ### Changed

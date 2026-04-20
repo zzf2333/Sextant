@@ -7,7 +7,7 @@ Get from install to your first completed task in about 5 minutes.
 ## 1. Install the adapter (< 1 minute)
 
 ```sh
-git clone https://github.com/SaoNian/Sextant
+git clone https://github.com/zzf2333/Sextant
 cd Sextant
 ./adapters/claude-code/install.sh --project --path /path/to/your-project
 ```

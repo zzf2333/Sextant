@@ -9,7 +9,7 @@
 <p><strong>An engineering mindset framework that tells you where you are when coding with AI.</strong></p>
 
 <p>
-  <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
+  <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
   <img src="https://img.shields.io/badge/version-0.0.4-3b82f6?style=flat-square" alt="v0.0.4"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
@@ -125,7 +125,7 @@ Four knowledge files live in your project, versioned alongside your code. Each h
 
 ```sh
 # Clone Sextant
-git clone https://github.com/SaoNian/Sextant
+git clone https://github.com/zzf2333/Sextant
 cd Sextant
 
 # One-shot install: agents, commands, knowledge files, CLAUDE.md snippet

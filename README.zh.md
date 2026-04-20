@@ -9,7 +9,7 @@
 <p><strong>一个让你在 AI 编码的不确定海域里判断自己在哪的工程心智框架</strong></p>
 
 <p>
-  <a href="https://github.com/SaoNian/Sextant/stargazers"><img src="https://img.shields.io/github/stars/SaoNian/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
+  <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
   <img src="https://img.shields.io/badge/version-0.0.4-3b82f6?style=flat-square" alt="v0.0.4"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
@@ -125,7 +125,7 @@ Verify 是阶段，不是角色。由确定性工具栈（tests / types / lint /
 
 ```sh
 # 克隆 Sextant
-git clone https://github.com/SaoNian/Sextant
+git clone https://github.com/zzf2333/Sextant
 cd Sextant
 
 # 一键安装：agents、commands、知识文件、CLAUDE.md snippet
