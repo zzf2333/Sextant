@@ -31,9 +31,30 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 3. **Save artifact**: write the subagent's output to `.sextant/traces/<task_id>/plan.md`
 
-4. **Auto-review**: invoke `sextant-reviewer` subagent (plan stage) with:
-   - `stage: plan`
-   - The plan artifact just produced
+4. **Auto-review**: build a Clean Context Packet, then invoke `sextant-reviewer`
+   subagent (plan stage).
+
+   Packet:
+   ```yaml
+   facts:
+     - `.sextant/SEXTANT.md` if present
+     - `.sextant/PROJECT_EVOLUTION_LOG.md` if present
+     - relevant `modules/*/EVOLUTION.md` files if present
+     - `.sextant/hook-registry.json` if present
+   artifacts:
+     - `.sextant/traces/<task_id>/spec.md`
+     - `.sextant/traces/<task_id>/plan.md`
+   rubric:
+     - `core/roles/reviewer.md`
+     - `core/templates/review.md`
+     - `core/rules/reviewer-context-boundary.md`
+     - `stage: plan`
+   exclusions:
+     generation_transcript: true
+     hidden_reasoning: true
+     author_self_justification: true
+     negotiation_history: true
+   ```
 
 5. **Save review**: write reviewer output to `.sextant/traces/<task_id>/review-plan.md`
 

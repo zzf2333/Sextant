@@ -61,6 +61,22 @@ is not installed, skip usage capture silently and continue the workflow. This ru
 applies to `spec`, `review-spec`, `plan`, `review-plan`, `build`, `review-build`,
 and `record`.
 
+### Clean Context Packet rule
+
+Every reviewer invocation must receive a Clean Context Packet as defined in
+`core/rules/reviewer-context-boundary.md`.
+
+Allowed packet groups:
+- `facts`: project state, constraints, module history, rejected paths, deterministic tool output
+- `artifacts`: formal stage artifacts, build diff, verification output
+- `rubric`: reviewer role, review template, context-boundary rule, current stage
+
+Excluded from the packet:
+- generation transcript
+- hidden reasoning
+- author self-justification
+- user-agent negotiation history
+
 ### Step 1: Resolve task context
 
 **If a task description is provided:**
@@ -112,9 +128,13 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 
     Save output to `.sextant/traces/<task_id>/spec.md`.
 
-2e. **Invoke `sextant-reviewer` subagent** (spec stage) with:
-    - `stage: spec`
-    - The spec artifact just produced
+2e. **Invoke `sextant-reviewer` subagent** (spec stage) with a Clean Context Packet:
+    - Facts: `.sextant/SEXTANT.md`, `.sextant/PROJECT_EVOLUTION_LOG.md`,
+      relevant `modules/*/EVOLUTION.md`, `.sextant/hook-registry.json` if present
+    - Artifacts: `.sextant/traces/<task_id>/spec.md`
+    - Rubric: reviewer role, review template, context-boundary rule, `stage: spec`
+    - Exclusions: no generation transcript, hidden reasoning, author self-justification,
+      or negotiation history
 
     Save output to `.sextant/traces/<task_id>/review-spec.md`.
 
@@ -134,9 +154,13 @@ c. Find all trace directories in `.sextant/traces/` that do NOT have `record.md`
 
     Save output to `.sextant/traces/<task_id>/plan.md`.
 
-2h. **Invoke `sextant-reviewer` subagent** (plan stage) with:
-    - `stage: plan`
-    - The plan artifact just produced
+2h. **Invoke `sextant-reviewer` subagent** (plan stage) with a Clean Context Packet:
+    - Facts: `.sextant/SEXTANT.md`, `.sextant/PROJECT_EVOLUTION_LOG.md`,
+      relevant `modules/*/EVOLUTION.md`, `.sextant/hook-registry.json` if present
+    - Artifacts: approved `spec.md`, `.sextant/traces/<task_id>/plan.md`
+    - Rubric: reviewer role, review template, context-boundary rule, `stage: plan`
+    - Exclusions: no generation transcript, hidden reasoning, author self-justification,
+      or negotiation history
 
     Save output to `.sextant/traces/<task_id>/review-plan.md`.
 
@@ -247,17 +271,21 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
     ```
     Stop.
 
-4e. **Invoke `sextant-reviewer` subagent** with:
-    - `stage: build`
-    - The build diff (from `git diff HEAD` or recent file changes)
-    - `build-summary.md`
-    - Approved spec and plan artifacts
-    - Tool output from Step 4d
+4e. **Invoke `sextant-reviewer` subagent** with a Clean Context Packet:
+    - Facts: `.sextant/SEXTANT.md`, `.sextant/PROJECT_EVOLUTION_LOG.md`,
+      relevant `modules/*/EVOLUTION.md`, `.sextant/hook-registry.json`, and tool output
+      from Step 4d if present
+    - Artifacts: approved `spec.md`, approved `plan.md`, `build-summary.md`, and build diff
+      from `git diff HEAD` or recent file changes
+    - Rubric: reviewer role, review template, context-boundary rule, `stage: build`
+    - Exclusions: no generation transcript, hidden reasoning, author self-justification,
+      or negotiation history
 
     Save to `.sextant/traces/<task_id>/review-build.md`.
 
-4f. **Verify `deletion_proposals` present**. If field is missing, the review is malformed —
-    re-invoke the reviewer subagent (once). If still missing, stop and report the issue.
+4f. **Verify `deletion_proposals` and `context_boundary` present**. If either field is
+    missing, the review is malformed — re-invoke the reviewer subagent (once). If still
+    missing, stop and report the issue.
 
 4g. **Check verdict**.
     If `rejected`: display conditions clearly. Print:

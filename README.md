@@ -68,7 +68,10 @@ Sextant externalizes engineering discipline into a runtime protocol: five contex
 | **reviewer** | **Reduction-Review** — adversary, not approver                                                  | `deletion_proposals` is a required field. If nothing can be deleted, explicitly write `none`. Reviewer sees products, not reasoning. |
 | **rca**      | Root cause analysis                                                                             | Only appears after confirmed failures, rework events, or incidents — never speculatively                                             |
 
-> The reviewer runs in **three independent sessions**: after spec, after plan, after build. Each is a fresh adversarial context that only receives the upstream structured artifact — never the reasoning process that produced it.
+> The reviewer runs in **three independent sessions**: after spec, after plan, after build.
+> Each receives a Clean Context Packet: project facts, formal artifacts, and the review
+> rubric, but not the reasoning process, author self-justification, or negotiation history
+> that produced the artifact.
 
 ### 5 Phases
 
@@ -113,7 +116,9 @@ Four knowledge files live in your project, versioned alongside your code. Each h
 
 3. **Deterministic logic before LLM.** Task classification, tool gating, state transitions: deterministic first. LLM only where genuine judgment is needed.
 
-4. **Verification independence from "looking at products, not reasoning."** The reviewer receives only upstream structured output — never the reasoning process or intermediate drafts.
+4. **Clean reviewer context over blind review.** The reviewer receives enough facts to
+judge fit, but not the author's self-justifying story. Clean Context Packets separate
+project facts and formal artifacts from generation transcripts and negotiation history.
 
 5. **Every layer must be retirable.** Sextant serves the capability gap of 2026. Each mechanism can be independently disabled as models improve. This is health, not failure.
 
@@ -179,7 +184,7 @@ first post-release target is to close that evidence gap: at least 10 real tasks,
 | ----------------------- | --------------------------------------------------------------------------- |
 | `core/roles/`           | 5 role prompts (reviewer, spec, planner, builder, rca)                      |
 | `core/templates/`       | 5 output templates                                                          |
-| `core/rules/`           | Task classification, stage gates, rollback rules                            |
+| `core/rules/`           | Task classification, stage gates, rollback rules, reviewer context boundary |
 | `core/knowledge/`       | 4 knowledge file initialization templates                                   |
 | `adapters/claude-code/` | `/sextant` primary command, 5 stage commands, `/sextant-status`, `/sextant-init`, hooks (advisory/team/strict), one-shot install |
 | `scripts/bootstrap.sh`  | Knowledge layout initializer                                                |

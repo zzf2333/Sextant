@@ -101,7 +101,7 @@ Run /sextant to verify, review, and record this task.
 
 Sextant:
 1. Runs your project's verification commands (detected or from `.sextant/SEXTANT.md`)
-2. Runs the reviewer on the build diff
+2. Runs the reviewer on the build diff using a Clean Context Packet
 3. If everything passes, runs a fast-close analysis for knowledge writebacks
 4. Closes the task trace
 
@@ -119,12 +119,16 @@ Knowledge updated. The next /sextant will load these changes as context.
 
 ---
 
-## v0.1.0 dogfood gate
+## Dogfood evidence
 
-Sextant's next release is the v0.1.0 Dogfood Gate. Before cutting that release, fill
-`docs/dogfood.md` from real traces only. The minimum gate is 10 real tasks, 80% closed-loop
-completion, 50% non-empty reviewer deletion proposal rate, 60% verify first-pass rate,
-and no more than 20% active bypasses.
+Sextant v0.1.0 was cut as a Dogfood Gate tooling release with an explicit maintainer
+override. Keep filling `docs/dogfood.md` from real traces only. The active evidence
+target is 10 real tasks, 80% closed-loop completion, 50% non-empty reviewer deletion
+proposal rate, 60% verify first-pass rate, and no more than 20% active bypasses.
+
+Reviewer stages use Clean Context Packets: project facts, formal artifacts, and the
+review rubric are allowed; generation transcript, hidden reasoning, author
+self-justification, and negotiation history are excluded.
 
 ---
 

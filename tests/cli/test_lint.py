@@ -20,7 +20,8 @@ def write_spec(trace: Path, *, version: int = 1, forced: bool = False,
 
 
 def write_review(trace: Path, stage: str, verdict: str, version: int = 1,
-                 deletion_proposals: str = "none") -> None:
+                 deletion_proposals: str = "none",
+                 context_boundary: str | None = None) -> None:
     trace.mkdir(parents=True, exist_ok=True)
     if stage == "spec" and not (trace / "spec.md").exists():
         write_spec(trace)
@@ -30,9 +31,19 @@ def write_review(trace: Path, stage: str, verdict: str, version: int = 1,
     if stage == "build":
         if not (trace / "build-summary.md").exists():
             write_build_summary(trace)
+    if context_boundary is None:
+        context_boundary = (
+            "```yaml\n"
+            "packet_type: clean_context_packet\n"
+            "contamination_detected: false\n"
+            "contamination_notes: none\n"
+            "missing_facts: none\n"
+            "```"
+        )
     (trace / f"review-{stage}.md").write_text(
         f"---\nstage: {stage}\nreviewed_artifact_ref: {stage}.md\n"
         f"reviewer_session_id: s-{stage}\nreview_version: {version}\n---\n\n"
+        f"## context_boundary\n\n{context_boundary}\n\n"
         f"## deletion_proposals\n\n{deletion_proposals}\n\n"
         f"## verdict\n\n`{verdict}`\n\n"
         f"## conditions\n\n[]\n"
@@ -167,6 +178,13 @@ class TestDeletionProposals:
         (tmp_path / "t" / "review-spec.md").write_text(
             "---\nstage: spec\nreviewed_artifact_ref: spec.md\n"
             "reviewer_session_id: s\nreview_version: 1\n---\n\n"
+            "## context_boundary\n\n"
+            "```yaml\n"
+            "packet_type: clean_context_packet\n"
+            "contamination_detected: false\n"
+            "contamination_notes: none\n"
+            "missing_facts: none\n"
+            "```\n\n"
             "## verdict\n\n`approved`\n"
         )
         issues, code = lint_task("t", tmp_path)
@@ -206,6 +224,66 @@ class TestDeletionProposals:
         assert errors == [], errors
 
 
+# ── review context_boundary checks ────────────────────────────────────
+
+class TestContextBoundary:
+    def test_missing_section_is_error(self, tmp_path):
+        (tmp_path / "t").mkdir()
+        (tmp_path / "t" / "review-spec.md").write_text(
+            "---\nstage: spec\nreviewed_artifact_ref: spec.md\n"
+            "reviewer_session_id: s\nreview_version: 1\n---\n\n"
+            "## deletion_proposals\n\nnone\n\n"
+            "## verdict\n\n`approved`\n"
+        )
+        issues, code = lint_task("t", tmp_path)
+        assert any("context_boundary" in i.message and "missing" in i.message
+                   for i in issues if i.level == "error")
+        assert code == 1
+
+    def test_wrong_packet_type_is_error(self, tmp_path):
+        context = (
+            "```yaml\n"
+            "packet_type: raw_context\n"
+            "contamination_detected: false\n"
+            "contamination_notes: none\n"
+            "missing_facts: none\n"
+            "```"
+        )
+        write_review(tmp_path / "t", "spec", "approved", context_boundary=context)
+        issues, code = lint_task("t", tmp_path)
+        assert any("packet_type" in i.message for i in issues if i.level == "error")
+        assert code == 1
+
+    def test_contamination_requires_notes(self, tmp_path):
+        context = (
+            "```yaml\n"
+            "packet_type: clean_context_packet\n"
+            "contamination_detected: true\n"
+            "contamination_notes: none\n"
+            "missing_facts: none\n"
+            "```"
+        )
+        write_review(tmp_path / "t", "spec", "rejected", context_boundary=context)
+        issues, code = lint_task("t", tmp_path)
+        assert any("contamination_notes" in i.message for i in issues if i.level == "error")
+        assert code == 1
+
+    def test_contamination_with_notes_passes(self, tmp_path):
+        context = (
+            "```yaml\n"
+            "packet_type: clean_context_packet\n"
+            "contamination_detected: true\n"
+            "contamination_notes: planner transcript was included and ignored\n"
+            "missing_facts: none\n"
+            "```"
+        )
+        write_review(tmp_path / "t", "spec", "rejected", context_boundary=context)
+        issues, code = lint_task("t", tmp_path)
+        errors = [i for i in issues if i.level == "error"]
+        assert errors == [], errors
+        assert code == 0
+
+
 # ── verdict checks ────────────────────────────────────────────────────
 
 class TestVerdictLint:
@@ -214,6 +292,13 @@ class TestVerdictLint:
         (tmp_path / "t" / "review-spec.md").write_text(
             "---\nstage: spec\nreviewed_artifact_ref: spec.md\n"
             "reviewer_session_id: s\nreview_version: 1\n---\n\n"
+            "## context_boundary\n\n"
+            "```yaml\n"
+            "packet_type: clean_context_packet\n"
+            "contamination_detected: false\n"
+            "contamination_notes: none\n"
+            "missing_facts: none\n"
+            "```\n\n"
             "## deletion_proposals\n\nnone\n\n"
             "## verdict\n\n`maybe`\n"
         )
@@ -227,6 +312,13 @@ class TestVerdictLint:
         (tmp_path / "t" / "review-spec.md").write_text(
             "---\nstage: spec\nreviewed_artifact_ref: spec.md\n"
             "reviewer_session_id: s\nreview_version: 1\n---\n\n"
+            "## context_boundary\n\n"
+            "```yaml\n"
+            "packet_type: clean_context_packet\n"
+            "contamination_detected: false\n"
+            "contamination_notes: none\n"
+            "missing_facts: none\n"
+            "```\n\n"
             "## deletion_proposals\n\nnone\n\n"
             "## verdict\n\n`approved` | `approved-with-conditions` | `rejected`\n"
         )

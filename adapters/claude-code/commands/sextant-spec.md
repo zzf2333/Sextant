@@ -51,9 +51,29 @@ If no task description is provided, ask the user: "What do you want to accomplis
 
 6. **Save artifact**: write the subagent's output to `.sextant/traces/<task_id>/spec.md`
 
-7. **Auto-review**: invoke `sextant-reviewer` subagent (spec stage) with:
-   - `stage: spec`
-   - The spec artifact just produced
+7. **Auto-review**: build a Clean Context Packet, then invoke `sextant-reviewer`
+   subagent (spec stage).
+
+   Packet:
+   ```yaml
+   facts:
+     - `.sextant/SEXTANT.md` if present
+     - `.sextant/PROJECT_EVOLUTION_LOG.md` if present
+     - relevant `modules/*/EVOLUTION.md` files if present
+     - `.sextant/hook-registry.json` if present
+   artifacts:
+     - `.sextant/traces/<task_id>/spec.md`
+   rubric:
+     - `core/roles/reviewer.md`
+     - `core/templates/review.md`
+     - `core/rules/reviewer-context-boundary.md`
+     - `stage: spec`
+   exclusions:
+     generation_transcript: true
+     hidden_reasoning: true
+     author_self_justification: true
+     negotiation_history: true
+   ```
 
    Save reviewer output to `.sextant/traces/<task_id>/review-spec.md`.
 

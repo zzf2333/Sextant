@@ -68,7 +68,8 @@ Sextant 把工程心智外化为运行时协议：五个上下文隔离的角色
 | **reviewer** | **Reduction-Review**——对抗者，不是审批者            | `deletion_proposals` 是强制字段。没有可删项时显式写 none。看产物，不看推理。 |
 | **rca**      | 失败归因                                            | 仅在确认的失败、返工事件或事故后出场——不做预防性分析                         |
 
-> reviewer 在**三个独立会话**中出场：spec 后、plan 后、build 后。每次都是全新的对抗上下文，只接收上游的结构化产物，绝不接收产物背后的推理过程。
+> reviewer 在**三个独立会话**中出场：spec 后、plan 后、build 后。每次接收 Clean
+> Context Packet：项目事实、正式产物和审查标准；不接收产物生成过程、作者自我辩护或协商历史。
 
 ### 5 个阶段
 
@@ -113,7 +114,8 @@ Verify 是阶段，不是角色。由确定性工具栈（tests / types / lint /
 
 3. **能用确定性逻辑就别用 LLM。** 任务分级、工具门控、状态流转：优先确定性实现。LLM 只在确实需要判断时出场。
 
-4. **验证独立性来自"看产物，不看推理"。** Reviewer 只接收上游的结构化产物，不接收推理过程或中间草稿。
+4. **干净审查上下文 > 盲审。** Reviewer 需要足够事实来判断方案是否适合项目，
+但不接收作者的自我辩护叙事。Clean Context Packet 把项目事实和正式产物，与生成过程和协商历史分开。
 
 5. **每层机制都必须可退役。** Sextant 服务于 2026 年的能力缺口。每层机制可独立关闭，随模型进步单独退出。这是健康，不是失败。
 
@@ -173,7 +175,7 @@ cd Sextant
 | ----------------------- | ----------------------------------------------------------------------------------------- |
 | `core/roles/`           | 5 个角色 prompt（reviewer / spec / planner / builder / rca）                              |
 | `core/templates/`       | 5 套结构化输出模板                                                                        |
-| `core/rules/`           | 任务分级、阶段门控、回退规则                                                              |
+| `core/rules/`           | 任务分级、阶段门控、回退规则、reviewer 上下文边界                                         |
 | `core/knowledge/`       | 4 类知识文件初始化模板                                                                    |
 | `adapters/claude-code/` | `/sextant` 主命令、5 个阶段命令、`/sextant-status`、`/sextant-init`、hooks（advisory/team/strict）、一键安装 |
 | `scripts/bootstrap.sh`  | 知识布局初始化脚本                                                                        |

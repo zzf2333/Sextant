@@ -102,6 +102,7 @@ BuildSummaryRequiredSections: list[str] = [
 
 # Review mandatory sections
 ReviewRequiredSections: list[str] = [
+    "context_boundary",
     "deletion_proposals",
     "verdict",
 ]

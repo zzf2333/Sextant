@@ -168,6 +168,66 @@ Verification: `make test-cli` passed with 166 tests, and `make test` passed all 
 
 ---
 
+# Sextant v0.1.1 — Clean Reviewer Context Boundary
+
+## Version Thesis
+
+v0.1.1 should make reviewer isolation more precise. Sextant does not need a blind
+reviewer; it needs a reviewer that sees project facts, review artifacts, and the
+review rubric without inheriting author self-justification or generation history.
+
+The core concept is the Clean Context Packet: a bounded input envelope for reviewer
+invocations.
+
+## Scope
+
+- [x] Add `core/rules/reviewer-context-boundary.md`.
+- [x] Update `core/roles/reviewer.md` to require Clean Context Packet input and
+      contamination reporting.
+- [x] Update `core/templates/review.md` with mandatory `context_boundary` evidence.
+- [x] Update Claude Code commands to construct Clean Context Packets before reviewer
+      invocation.
+- [x] Update `sextant lint` so review artifacts must include `context_boundary`.
+- [x] Add lint tests for valid, missing, and contaminated context boundary sections.
+- [x] Sync README, quickstart, changelog, and this plan.
+
+## Pending Documentation Sync List
+
+- `README.md`: describe Clean Context Packet in the workflow/status section.
+- `README.zh.md`: mirror the concept in Chinese-facing README text while keeping
+  public release wording aligned.
+- `docs/quickstart.md`: mention that reviewer stages receive clean context packets.
+- `docs/trace-contract.md`: document the required review `context_boundary` section.
+- `CHANGELOG.md`: record v0.1.1 changes under `[Unreleased]`.
+- `tasks/todo.md`: track implementation and retrospective.
+
+## Acceptance Criteria
+
+- [x] `core/rules/reviewer-context-boundary.md` defines allowed facts, artifacts,
+      rubric, and forbidden generation/justification context.
+- [x] Reviewer role rejects or flags contaminated input.
+- [x] Review template requires `context_boundary`.
+- [x] `sextant lint` errors when a review artifact omits `context_boundary`.
+- [x] `sextant lint` errors when `contamination_detected: true` appears without
+      non-empty notes.
+- [x] `make test-cli` passes.
+- [x] `make test` passes.
+
+## Retrospective
+
+Implemented Clean Context Packet as the v0.1.1 development slice. The key decision was
+to avoid blind review: reviewer gets enough project facts and formal artifacts to judge
+fit, but must exclude generation transcript, hidden reasoning, author self-justification,
+and negotiation history. The review artifact now records `context_boundary` evidence so
+reviewer isolation is auditable.
+
+Verification:
+- `python3 -m pytest tests/cli/test_lint.py -q` passed with 38 tests.
+- `make test-cli` passed with 170 tests.
+- `make test` passed all 6 suites.
+
+---
+
 # Sextant v0.1.0 First Wave — Implementation Tracker
 
 ## Current Task · Generate AGENTS.md

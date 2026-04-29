@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `core/rules/reviewer-context-boundary.md` — defines the Clean Context Packet contract
+  for reviewer invocations: allowed facts, artifacts, rubric, and forbidden contaminating
+  context.
+
+### Changed
+
+- Reviewer role and template now require `context_boundary` evidence for every review,
+  including packet type, contamination status, contamination notes, and missing facts.
+- Claude Code reviewer invocations now construct Clean Context Packets instead of passing
+  informal artifact-only prompts.
+- `sextant lint` now errors when review artifacts omit `context_boundary` or claim
+  contamination without non-empty notes.
+
 ## [0.1.0] - 2026-04-29
 
 ### Added

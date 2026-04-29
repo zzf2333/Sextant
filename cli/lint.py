@@ -147,6 +147,84 @@ def _check_verdict(name: str, text: str) -> list[Issue]:
     return issues
 
 
+def _parse_simple_yaml_block(section: str) -> dict[str, Any]:
+    """Parse flat key/value pairs from a fenced or plain YAML-ish section."""
+    lines = section.strip().splitlines()
+    if lines and lines[0].strip().startswith("```"):
+        lines = lines[1:]
+    if lines and lines[-1].strip().startswith("```"):
+        lines = lines[:-1]
+
+    result: dict[str, Any] = {}
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or ":" not in stripped:
+            continue
+        key, _, raw = stripped.partition(":")
+        value = raw.split("#")[0].strip().strip('"').strip("'")
+        lowered = value.lower()
+        if lowered == "true":
+            result[key.strip()] = True
+        elif lowered == "false":
+            result[key.strip()] = False
+        else:
+            result[key.strip()] = value
+    return result
+
+
+def _is_empty_context_value(value: Any) -> bool:
+    if value is None:
+        return True
+    if not isinstance(value, str):
+        return False
+    normalized = value.strip().strip("`").lower()
+    return normalized in ("", "none", "[]", "n/a", "tbd", "todo", "pending")
+
+
+def _check_context_boundary(name: str, text: str) -> list[Issue]:
+    """Verify review artifacts include Clean Context Packet evidence."""
+    issues: list[Issue] = []
+    section = parse_section(text, "context_boundary")
+
+    if section is None:
+        issues.append(Issue(name, "error",
+                            "context_boundary section missing (reviewer isolation evidence required)"))
+        return issues
+
+    data = _parse_simple_yaml_block(section)
+    required_fields = {
+        "packet_type": str,
+        "contamination_detected": bool,
+        "contamination_notes": str,
+        "missing_facts": str,
+    }
+
+    for field_name, expected_type in required_fields.items():
+        if field_name not in data:
+            issues.append(Issue(name, "error",
+                                f"context_boundary field '{field_name}' missing"))
+            continue
+        value = data[field_name]
+        if not isinstance(value, expected_type):
+            issues.append(Issue(name, "error",
+                                f"context_boundary field '{field_name}' must be "
+                                f"{expected_type.__name__}, got {type(value).__name__}"))
+
+    packet_type = data.get("packet_type")
+    if isinstance(packet_type, str) and packet_type != "clean_context_packet":
+        issues.append(Issue(name, "error",
+                            "context_boundary packet_type must be 'clean_context_packet'"))
+
+    if data.get("contamination_detected") is True:
+        notes = data.get("contamination_notes")
+        if _is_empty_context_value(notes):
+            issues.append(Issue(name, "error",
+                                "contamination_detected=true requires non-empty "
+                                "contamination_notes"))
+
+    return issues
+
+
 # ── Per-artifact check functions ──────────────────────────────────────
 
 def _lint_spec(path: Path) -> list[Issue]:
@@ -178,6 +256,7 @@ def _lint_review(path: Path, stage: str) -> list[Issue]:
                             f"stage field is '{actual_stage}' but filename suggests '{stage}'"))
 
     issues += _check_deletion_proposals(name, text)
+    issues += _check_context_boundary(name, text)
     issues += _check_verdict(name, text)
     return issues
 

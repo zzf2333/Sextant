@@ -16,6 +16,21 @@ review_version: 1                   # increment when resubmitting after the upst
 
 ---
 
+## context_boundary
+
+```yaml
+packet_type: clean_context_packet
+contamination_detected: false
+contamination_notes: none
+missing_facts: none
+```
+
+Set `contamination_detected: true` if the review input included generation transcript,
+hidden reasoning, author self-justification, or user-agent negotiation history. When true,
+`contamination_notes` must explain what contaminated the packet.
+
+---
+
 ## deletion_proposals
 
 > **MANDATORY.** List every element that could be removed without affecting the outcome.

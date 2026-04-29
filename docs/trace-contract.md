@@ -1,7 +1,7 @@
-# Sextant v0.1.0 Trace Contract
+# Sextant Trace Contract
 
 This document defines the minimum trace structure that `sextant lint` can verify
-mechanically for v0.1.0. It does not judge review quality, implementation quality,
+mechanically. It does not judge review quality, implementation quality,
 or whether a plan is elegant.
 
 ## Canonical Artifact Order
@@ -53,3 +53,19 @@ or accidental artifacts.
 If `spec.md` has `forced_level: true`, it must also include a non-empty
 `override_reason`. This makes intentional bypasses visible in `status`, `lint`, and
 release-readiness review.
+
+## Reviewer Context Boundary
+
+Every review artifact must include a `context_boundary` section. The section records
+whether the reviewer received a Clean Context Packet:
+
+```yaml
+packet_type: clean_context_packet
+contamination_detected: false
+contamination_notes: none
+missing_facts: none
+```
+
+If `contamination_detected: true`, `contamination_notes` must explain the contaminating
+input. This makes reviewer isolation auditable without asking the linter to judge review
+quality.

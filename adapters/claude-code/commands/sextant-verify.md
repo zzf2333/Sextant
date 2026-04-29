@@ -64,12 +64,32 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
    If all pass: print `── Layer 1 passed ──` with a brief summary.
 
 5. **Layer 2 — Reviewer** (build stage):
-   Invoke `sextant-reviewer` subagent with:
-   - `stage: build`
-   - The build diff (read from `git diff HEAD` or recent file changes)
-   - `.sextant/traces/<task_id>/build-summary.md`
-   - The approved spec and plan artifacts
-   - The tool output from Layer 1
+   Build a Clean Context Packet, then invoke `sextant-reviewer` subagent.
+
+   Packet:
+   ```yaml
+   facts:
+     - `.sextant/SEXTANT.md` if present
+     - `.sextant/PROJECT_EVOLUTION_LOG.md` if present
+     - relevant `modules/*/EVOLUTION.md` files if present
+     - `.sextant/hook-registry.json` if present
+     - Layer 1 tool output
+   artifacts:
+     - `.sextant/traces/<task_id>/spec.md`
+     - `.sextant/traces/<task_id>/plan.md`
+     - `.sextant/traces/<task_id>/build-summary.md`
+     - build diff from `git diff HEAD` or recent file changes
+   rubric:
+     - `core/roles/reviewer.md`
+     - `core/templates/review.md`
+     - `core/rules/reviewer-context-boundary.md`
+     - `stage: build`
+   exclusions:
+     generation_transcript: true
+     hidden_reasoning: true
+     author_self_justification: true
+     negotiation_history: true
+   ```
 
    Save reviewer output to `.sextant/traces/<task_id>/review-build.md`.
 
@@ -86,9 +106,9 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
    If the CLI is not installed, skip this step silently.
 
-7. **Validate `deletion_proposals`**: the field must be present and non-empty (even if
-   `none`). If missing, the review artifact is malformed — re-invoke the reviewer
-   subagent once. If still missing, stop and report.
+7. **Validate review contract**: `deletion_proposals` and `context_boundary` must be
+   present. If either is missing, the review artifact is malformed — re-invoke the
+   reviewer subagent once. If still missing, stop and report.
 
 8. **Report verdict**:
    If `rejected`: display conditions clearly. Print:
