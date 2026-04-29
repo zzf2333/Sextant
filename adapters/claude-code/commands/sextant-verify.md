@@ -73,11 +73,24 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
    Save reviewer output to `.sextant/traces/<task_id>/review-build.md`.
 
-6. **Validate `deletion_proposals`**: the field must be present and non-empty (even if
+6. **Record usage**: call `sextant record-usage` for the review-build stage.
+   Use actual token counts from the API response if available; otherwise estimate from file sizes.
+
+   ```bash
+   sextant record-usage --stage review-build \
+     --input <input_tokens> --output <output_tokens> \
+     --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+     --started-at <review_started_at> --completed-at <review_completed_at> \
+     --model <model_id> --task-id <task_id>
+   ```
+
+   If the CLI is not installed, skip this step silently.
+
+8. **Validate `deletion_proposals`**: the field must be present and non-empty (even if
    `none`). If missing, the review artifact is malformed — re-invoke the reviewer
    subagent once. If still missing, stop and report.
 
-7. **Report verdict**:
+9. **Report verdict**:
    If `rejected`: display conditions clearly. Print:
    ```
    Layer 2 failed: build reviewer rejected the diff.

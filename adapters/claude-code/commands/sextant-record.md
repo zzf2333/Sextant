@@ -95,12 +95,25 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 6. **Create record artifact**: write filled `record.md` following `core/templates/record.md`
    to `.sextant/traces/<task_id>/record.md`.
 
-7. **Close the trace**: append to `.sextant/traces/index.md` (create if absent):
+7. **Record usage**: call `sextant record-usage` for the record stage.
+   Use actual token counts from the API response if available; otherwise estimate from file sizes.
+
+   ```bash
+   sextant record-usage --stage record \
+     --input <input_tokens> --output <output_tokens> \
+     --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+     --started-at <record_started_at> --completed-at <record_completed_at> \
+     --model <model_id> --task-id <task_id>
+   ```
+
+   If the CLI is not installed, skip this step silently.
+
+9. **Close the trace**: append to `.sextant/traces/index.md` (create if absent):
    ```
    | <task_id> | <task_level> | <completed_at> | <one-line summary> |
    ```
 
-8. **Print final summary**:
+10. **Print final summary**:
    ```
    ── Task complete ─────────────────────────────────────
    Task:  <task_id>

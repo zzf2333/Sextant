@@ -56,7 +56,26 @@ If no task description is provided, ask the user: "What do you want to accomplis
 
    Save reviewer output to `.sextant/traces/<task_id>/review-spec.md`.
 
-8. **Report verdict**:
+8. **Record usage**: call `sextant record-usage` for both stages completed in this command.
+   Use actual token counts from the API response if available; otherwise estimate from file sizes.
+
+   ```bash
+   sextant record-usage --stage spec \
+     --input <input_tokens> --output <output_tokens> \
+     --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+     --started-at <spec_started_at> --completed-at <spec_completed_at> \
+     --model <model_id> --task-id <task_id>
+
+   sextant record-usage --stage review-spec \
+     --input <input_tokens> --output <output_tokens> \
+     --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+     --started-at <review_started_at> --completed-at <review_completed_at> \
+     --model <model_id> --task-id <task_id>
+   ```
+
+   If the CLI is not installed, skip this step silently.
+
+9. **Report verdict**:
 
    If `approved` or `approved-with-conditions` (all conditions resolvable):
    ```

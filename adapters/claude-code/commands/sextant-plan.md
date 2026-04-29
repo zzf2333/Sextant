@@ -37,7 +37,26 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
 5. **Save review**: write reviewer output to `.sextant/traces/<task_id>/review-plan.md`
 
-6. **Report verdict**: display the reviewer's verdict and any conditions.
+6. **Record usage**: call `sextant record-usage` for both stages completed in this command.
+   Use actual token counts from the API response if available; otherwise estimate from file sizes.
+
+   ```bash
+   sextant record-usage --stage plan \
+     --input <input_tokens> --output <output_tokens> \
+     --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+     --started-at <plan_started_at> --completed-at <plan_completed_at> \
+     --model <model_id> --task-id <task_id>
+
+   sextant record-usage --stage review-plan \
+     --input <input_tokens> --output <output_tokens> \
+     --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+     --started-at <review_started_at> --completed-at <review_completed_at> \
+     --model <model_id> --task-id <task_id>
+   ```
+
+   If the CLI is not installed, skip this step silently.
+
+7. **Report verdict**: display the reviewer's verdict and any conditions.
 
    If `approved` or `approved-with-conditions`:
    Display plan summary (recommended candidate, rationale, engineering footprint). Print:

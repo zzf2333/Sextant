@@ -38,11 +38,24 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 6. **Save build summary**: Write the subagent's build summary output to
    `.sextant/traces/<task_id>/build-summary.md`
 
-7. **Check scope_creep_flags**: if `scope_creep_flags` is non-empty, display each flag
+7. **Record usage**: call `sextant record-usage` for the build stage.
+   Use actual token counts from the API response if available; otherwise estimate from file sizes.
+
+   ```bash
+   sextant record-usage --stage build \
+     --input <input_tokens> --output <output_tokens> \
+     --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+     --started-at <build_started_at> --completed-at <build_completed_at> \
+     --model <model_id> --task-id <task_id>
+   ```
+
+   If the CLI is not installed, skip this step silently.
+
+9. **Check scope_creep_flags**: if `scope_creep_flags` is non-empty, display each flag
    and ask: "These items were added beyond plan scope. Accept (amend plan), reject, or defer?"
    Do not proceed to verify until all flags are resolved.
 
-8. **Prompt for next step** (if no blocking flags):
+10. **Prompt for next step** (if no blocking flags):
    ```
    Build complete.
 

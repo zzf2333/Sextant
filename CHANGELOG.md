@@ -6,6 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.8] - 2026-04-29
+
+### Added
+
+- `sextant tokens` — new CLI subcommand for per-stage token **and time** consumption
+  statistics. Reports total tokens, total duration, per-stage averages, and data source
+  (recorded vs. estimated) across all 7 measurable stages (spec, review-spec, plan,
+  review-plan, build, review-build, record). Supports `--since DAYS`, `--task-level LEVELS`,
+  `--detail TASK_ID`, and `--json` flags.
+- `sextant record-usage` — new CLI subcommand to write actual token and time data for a
+  completed stage into `usage.json` inside the task trace directory. Accepts
+  `--stage`, `--input`, `--output`, `--cache-read`, `--cache-creation`,
+  `--started-at`, `--completed-at`, `--duration`, `--model`, and `--task-id`.
+  Duration is auto-computed from timestamps when `--duration` is omitted.
+- `usage.json` — new per-trace file that persists recorded token and time data per stage.
+  Fields: `input_tokens`, `output_tokens`, `cache_read_tokens`, `cache_creation_tokens`,
+  `total_tokens`, `duration_seconds`, `started_at`, `completed_at`, `model`, `source`.
+  When present, `sextant tokens` prefers this data over `chars/4` estimation.
+- Claude Code adapter commands (`sextant-spec`, `sextant-plan`, `sextant-build`,
+  `sextant-verify`, `sextant-record`) now include a **Record usage** step at the end of
+  each stage, instructing the AI to call `sextant record-usage` with actual token counts
+  from the API response.
+
 ## [0.0.7] - 2026-04-20
 
 ### Changed
