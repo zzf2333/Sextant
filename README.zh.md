@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.1.0-3b82f6?style=flat-square" alt="v0.1.0"/>
+  <img src="https://img.shields.io/badge/version-0.1.1-3b82f6?style=flat-square" alt="v0.1.1"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -163,8 +163,11 @@ cd Sextant
 
 ## 当前状态
 
-**当前版本：v0.1.0 Dogfood Gate** — Claude Code adapter 的 trace contract、lint
-门槛、release-readiness 指标、usage capture 指引和 dogfood 证据追踪版本。
+**当前版本：v0.1.1 Clean Context Boundary** — reviewer 调用现在使用 Clean Context
+Packet，`sextant lint` 会验证 review artifact 是否包含 `context_boundary` 证据。
+
+**v0.1.0 Dogfood Gate** 加入了 Claude Code adapter 的 trace contract、lint
+门槛、release-readiness 指标、usage capture 指引和 dogfood 证据追踪。
 
 本版本由 maintainer override 发布，dogfood 证据尚未完全达标。`docs/dogfood.md`
 保留当前缺口：5 个真实 trace、3 个闭环 trace、暂无 failure/recovery case、暂无阶段耗时数据。

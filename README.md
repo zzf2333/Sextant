@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.1.0-3b82f6?style=flat-square" alt="v0.1.0"/>
+  <img src="https://img.shields.io/badge/version-0.1.1-3b82f6?style=flat-square" alt="v0.1.1"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -169,9 +169,13 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 
 ## Status
 
-**Current release: v0.1.0 Dogfood Gate** — trace contract, lint enforcement,
-release-readiness metrics, usage-capture guidance, and dogfood evidence tracking for
-the Claude Code adapter.
+**Current release: v0.1.1 Clean Context Boundary** — reviewer invocations now use
+Clean Context Packets, and `sextant lint` verifies review artifacts include
+`context_boundary` evidence.
+
+**v0.1.0 Dogfood Gate** added trace contract, lint enforcement, release-readiness
+metrics, usage-capture guidance, and dogfood evidence tracking for the Claude Code
+adapter.
 
 This release was cut with a maintainer override before the dogfood evidence fully met
 the gate. `docs/dogfood.md` preserves the current shortfall: 5 real traces, 3 closed
