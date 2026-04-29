@@ -163,7 +163,7 @@ Verification: `make test-cli` passed with 166 tests, and `make test` passed all 
 
 - [x] Maintainer requested publishing v0.1.0 despite the dogfood evidence shortfall.
 - [x] Keep the shortfall explicit in `docs/dogfood.md` instead of marking unmet gates as complete.
-- [ ] Run release script for v0.1.0.
+- [x] Run release script for v0.1.0.
 - [ ] Push `main` and `v0.1.0` tag.
 
 ---

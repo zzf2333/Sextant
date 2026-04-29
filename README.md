@@ -11,7 +11,7 @@
 <p>
   <a href="https://github.com/zzf2333/Sextant/stargazers"><img src="https://img.shields.io/github/stars/zzf2333/Sextant?style=flat-square&color=a855f7" alt="GitHub Stars"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-10b981?style=flat-square" alt="License MIT"/></a>
-  <img src="https://img.shields.io/badge/version-0.0.8-3b82f6?style=flat-square" alt="v0.0.8"/>
+  <img src="https://img.shields.io/badge/version-0.1.0-3b82f6?style=flat-square" alt="v0.1.0"/>
   <img src="https://img.shields.io/badge/Claude%20Code-adapter%20ready-f97316?style=flat-square" alt="Claude Code"/>
 </p>
 
@@ -164,14 +164,16 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 
 ## Status
 
-**Current release: v0.0.8** — token/time usage tracking and knowledge-layout polish.
+**Current release: v0.1.0 Dogfood Gate** — trace contract, lint enforcement,
+release-readiness metrics, usage-capture guidance, and dogfood evidence tracking for
+the Claude Code adapter.
 
-**Next release: v0.1.0 Dogfood Gate** — closed-loop validation for the Claude Code
-adapter. The code-side trace contract, lint checks, metrics thresholds, and dogfood
-report template are in place. The release is not cut until real dogfood evidence meets
-the gate in `docs/dogfood.md`: at least 10 real tasks, >= 80% closed-loop completion,
->= 50% non-empty reviewer deletion proposal rate, >= 60% verify first-pass rate, and
-<= 20% active bypass rate.
+This release was cut with a maintainer override before the dogfood evidence fully met
+the gate. `docs/dogfood.md` preserves the current shortfall: 5 real traces, 3 closed
+traces, no recorded failure/recovery case, and no recorded stage duration data. The
+first post-release target is to close that evidence gap: at least 10 real tasks,
+>= 80% closed-loop completion, >= 50% non-empty reviewer deletion proposal rate,
+>= 60% verify first-pass rate, and <= 20% active bypass rate.
 
 | Component               | Status                                                                      |
 | ----------------------- | --------------------------------------------------------------------------- |
@@ -182,8 +184,8 @@ the gate in `docs/dogfood.md`: at least 10 real tasks, >= 80% closed-loop comple
 | `adapters/claude-code/` | `/sextant` primary command, 5 stage commands, `/sextant-status`, `/sextant-init`, hooks (advisory/team/strict), one-shot install |
 | `scripts/bootstrap.sh`  | Knowledge layout initializer                                                |
 
-Generic runtime LLM CLI work is intentionally deferred until after v0.1.0 proves the
-Claude Code loop with real traces.
+Generic runtime LLM CLI work remains deferred until the Claude Code loop has stronger
+real trace evidence.
 
 ---
 
