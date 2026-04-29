@@ -67,11 +67,7 @@ Sextant will:
 
 ```
 ── Plan approved ────────────────────────────────────
-Review the plan above. When ready to implement:
-
-  /sextant           proceed to Build
-  /sextant-build     same, with explicit stage control
-  /sextant-status    review full task state before deciding
+Review the plan above, then run /sextant to build.
 ─────────────────────────────────────────────────────
 ```
 
@@ -91,7 +87,7 @@ It then pauses:
 
 ```
 ── Build complete ───────────────────────────────────
-Run /sextant to verify and close this task.
+Run /sextant to verify, review, and record this task.
 ─────────────────────────────────────────────────────
 ```
 
@@ -120,6 +116,15 @@ Trace: .sextant/traces/2026-04-19-add-input-validation/
 Knowledge updated. The next /sextant will load these changes as context.
 ──────────────────────────────────────────────────────
 ```
+
+---
+
+## v0.1.0 dogfood gate
+
+Sextant's next release is the v0.1.0 Dogfood Gate. Before cutting that release, fill
+`docs/dogfood.md` from real traces only. The minimum gate is 10 real tasks, 80% closed-loop
+completion, 50% non-empty reviewer deletion proposal rate, 60% verify first-pass rate,
+and no more than 20% active bypasses.
 
 ---
 

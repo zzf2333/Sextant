@@ -164,7 +164,14 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 
 ## Status
 
-**v0.0.8** — Knowledge files consolidation release.
+**Current release: v0.0.8** — token/time usage tracking and knowledge-layout polish.
+
+**Next release: v0.1.0 Dogfood Gate** — closed-loop validation for the Claude Code
+adapter. The code-side trace contract, lint checks, metrics thresholds, and dogfood
+report template are in place. The release is not cut until real dogfood evidence meets
+the gate in `docs/dogfood.md`: at least 10 real tasks, >= 80% closed-loop completion,
+>= 50% non-empty reviewer deletion proposal rate, >= 60% verify first-pass rate, and
+<= 20% active bypass rate.
 
 | Component               | Status                                                                      |
 | ----------------------- | --------------------------------------------------------------------------- |
@@ -175,7 +182,8 @@ See `docs/quickstart.md` for a step-by-step walkthrough.
 | `adapters/claude-code/` | `/sextant` primary command, 5 stage commands, `/sextant-status`, `/sextant-init`, hooks (advisory/team/strict), one-shot install |
 | `scripts/bootstrap.sh`  | Knowledge layout initializer                                                |
 
-Generic CLI and Trace system planned for v0.2.
+Generic runtime LLM CLI work is intentionally deferred until after v0.1.0 proves the
+Claude Code loop with real traces.
 
 ---
 

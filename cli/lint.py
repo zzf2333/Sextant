@@ -23,6 +23,7 @@ from cli.schema import (
     VERDICT_VALUES,
     PLACEHOLDER_PATTERNS,
     TRACE_FILE_WHITELIST,
+    ARTIFACT_SEQUENCE,
     SpecFrontmatterFields,
     PlanFrontmatterFields,
     ReviewFrontmatterFields,
@@ -250,6 +251,23 @@ def _lint_directory(trace_path: Path) -> list[Issue]:
     return issues
 
 
+def _lint_artifact_sequence(trace_path: Path) -> list[Issue]:
+    issues: list[Issue] = []
+    existing = [name for name in ARTIFACT_SEQUENCE if (trace_path / name).exists()]
+
+    if not existing:
+        return issues
+
+    furthest_index = max(ARTIFACT_SEQUENCE.index(name) for name in existing)
+    for required_name in ARTIFACT_SEQUENCE[:furthest_index + 1]:
+        if not (trace_path / required_name).exists():
+            furthest_name = ARTIFACT_SEQUENCE[furthest_index]
+            issues.append(Issue(required_name, "error",
+                                f"required because later artifact '{furthest_name}' exists"))
+
+    return issues
+
+
 # ── Per-file dispatcher ───────────────────────────────────────────────
 
 _ARTIFACT_LINTERS = {
@@ -278,6 +296,7 @@ def lint_task(task_id: str, traces_dir: Path) -> tuple[list[Issue], int]:
 
     # Directory structure check
     all_issues += _lint_directory(trace_path)
+    all_issues += _lint_artifact_sequence(trace_path)
 
     # Per-artifact checks (only for files that exist)
     for name, linter in _ARTIFACT_LINTERS.items():

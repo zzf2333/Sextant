@@ -44,6 +44,23 @@ On a happy-path L1 task the expected sequence is:
 
 ## Workflow
 
+### Usage capture rule
+
+After every subagent invocation, record usage for the stage that just completed:
+
+```bash
+sextant record-usage --stage <stage> \
+  --input <input_tokens> --output <output_tokens> \
+  --cache-read <cache_read_tokens> --cache-creation <cache_creation_tokens> \
+  --started-at <started_at> --completed-at <completed_at> \
+  --model <model_id> --task-id <task_id>
+```
+
+Use actual token and timing data from the API response when available. If the CLI
+is not installed, skip usage capture silently and continue the workflow. This rule
+applies to `spec`, `review-spec`, `plan`, `review-plan`, `build`, `review-build`,
+and `record`.
+
 ### Step 1: Resolve task context
 
 **If a task description is provided:**
@@ -174,7 +191,7 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
 
     If no blocking flags:
     ```
-    Build complete. Run `/sextant` to verify and close.
+    Build complete. Run `/sextant` to verify, review, and record this task.
     ```
     Stop.
 
@@ -267,7 +284,8 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
       "new pattern", "deprecate") → likely EVOLUTION.md or `.sextant/PROJECT_EVOLUTION_LOG.md` entry
 
 5b. **If no signals found**: create a minimal `record.md` (all P5 answers: no,
-    skip_reason: "No durable changes detected.") and go to Step 5d. No prompt needed.
+    skip_reason: "No durable changes detected.") and go to Step 5d. No knowledge
+    writeback prompt is needed, but the Record artifact is still mandatory.
 
 5c. **If signals found**:
 
@@ -306,3 +324,5 @@ Detect current stage by inspecting which artifacts exist in the trace directory:
   so each gate is explicitly reviewed before proceeding.
 - This command does not skip gates. Reviews still run. Knowledge writeback logic still
   applies. The difference is automation of the non-decision steps.
+- A trace is not complete until `review-build.md` and `record.md` both exist after the
+  full artifact chain. Build completion alone is never a closed task.

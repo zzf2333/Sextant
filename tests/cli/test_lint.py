@@ -22,6 +22,14 @@ def write_spec(trace: Path, *, version: int = 1, forced: bool = False,
 def write_review(trace: Path, stage: str, verdict: str, version: int = 1,
                  deletion_proposals: str = "none") -> None:
     trace.mkdir(parents=True, exist_ok=True)
+    if stage == "spec" and not (trace / "spec.md").exists():
+        write_spec(trace)
+    if stage == "plan":
+        if not (trace / "plan.md").exists():
+            write_plan(trace)
+    if stage == "build":
+        if not (trace / "build-summary.md").exists():
+            write_build_summary(trace)
     (trace / f"review-{stage}.md").write_text(
         f"---\nstage: {stage}\nreviewed_artifact_ref: {stage}.md\n"
         f"reviewer_session_id: s-{stage}\nreview_version: {version}\n---\n\n"
@@ -33,6 +41,10 @@ def write_review(trace: Path, stage: str, verdict: str, version: int = 1,
 
 def write_plan(trace: Path, version: int = 1, level: str = "L1") -> None:
     trace.mkdir(parents=True, exist_ok=True)
+    if not (trace / "spec.md").exists():
+        write_spec(trace)
+    if not (trace / "review-spec.md").exists():
+        write_review(trace, "spec", "approved")
     (trace / "plan.md").write_text(
         f"---\ntask_id: t\nspec_ref: spec.md\nplan_version: {version}\n"
         f"task_level: {level}\n---\n\n## candidates\n\n### A\n\n"
@@ -43,6 +55,10 @@ def write_plan(trace: Path, version: int = 1, level: str = "L1") -> None:
 
 def write_build_summary(trace: Path, scope_creep: str = "none") -> None:
     trace.mkdir(parents=True, exist_ok=True)
+    if not (trace / "plan.md").exists():
+        write_plan(trace)
+    if not (trace / "review-plan.md").exists():
+        write_review(trace, "plan", "approved")
     (trace / "build-summary.md").write_text(
         f"---\n---\n\n"
         f"## spec_ref\n\nspec.md\n\n"
@@ -57,6 +73,10 @@ def write_build_summary(trace: Path, scope_creep: str = "none") -> None:
 def write_record(trace: Path, version: int = 1, level: str = "L1",
                  has_skip_reason: bool = True) -> None:
     trace.mkdir(parents=True, exist_ok=True)
+    if not (trace / "build-summary.md").exists():
+        write_build_summary(trace)
+    if not (trace / "review-build.md").exists():
+        write_review(trace, "build", "approved")
     skip = "## skip_reason\n\nL0 change.\n" if has_skip_reason else ""
     (trace / "record.md").write_text(
         f"---\ntask_id: t\ncompleted_at: 2026-04-15T10:00:00Z\n"
@@ -287,6 +307,71 @@ class TestTraceDirectory:
         issues, code = lint_task("nonexistent", tmp_path)
         assert code == 1
         assert any("not found" in i.message for i in issues)
+
+    def test_usage_json_is_allowed_trace_file(self, tmp_path):
+        write_spec(tmp_path / "t")
+        (tmp_path / "t" / "usage.json").write_text("{}", encoding="utf-8")
+        issues, code = lint_task("t", tmp_path)
+        warnings = [i for i in issues if i.level == "warning" and "usage.json" in i.file]
+        assert warnings == []
+        assert code == 0
+
+
+# ── v0.1.0 trace contract checks ─────────────────────────────────────
+
+class TestTraceContract:
+    def test_complete_trace_passes(self, tmp_path):
+        write_record(tmp_path / "t")
+        issues, code = lint_task("t", tmp_path)
+        errors = [i for i in issues if i.level == "error"]
+        assert errors == [], errors
+        assert code == 0
+
+    def test_record_without_prior_artifacts_is_error(self, tmp_path):
+        (tmp_path / "t").mkdir()
+        (tmp_path / "t" / "record.md").write_text(
+            "---\ntask_id: t\ncompleted_at: 2026-04-15T10:00:00Z\n"
+            "task_level: L1\nrecord_version: 1\n---\n\n## skip_reason\n\ntest\n"
+        )
+        issues, code = lint_task("t", tmp_path)
+        missing = [i for i in issues if i.level == "error" and "later artifact" in i.message]
+        assert {i.file for i in missing} == {
+            "spec.md",
+            "review-spec.md",
+            "plan.md",
+            "review-plan.md",
+            "build-summary.md",
+            "review-build.md",
+        }
+        assert code == 1
+
+    def test_review_plan_without_plan_is_error(self, tmp_path):
+        trace = tmp_path / "t"
+        write_spec(trace)
+        write_review(trace, "spec", "approved")
+        (trace / "review-plan.md").write_text(
+            "---\nstage: plan\nreviewed_artifact_ref: plan.md\n"
+            "reviewer_session_id: s-plan\nreview_version: 1\n---\n\n"
+            "## deletion_proposals\n\nnone\n\n## verdict\n\n`approved`\n"
+        )
+        issues, code = lint_task("t", tmp_path)
+        assert any(i.file == "plan.md" and "later artifact" in i.message
+                   for i in issues if i.level == "error")
+        assert code == 1
+
+    def test_rejected_trace_is_structurally_valid_until_next_stage(self, tmp_path):
+        write_spec(tmp_path / "t")
+        write_review(tmp_path / "t", "spec", "rejected")
+        issues, code = lint_task("t", tmp_path)
+        errors = [i for i in issues if i.level == "error"]
+        assert errors == [], errors
+        assert code == 0
+
+    def test_bypassed_trace_requires_override_reason(self, tmp_path):
+        write_spec(tmp_path / "t", forced=True, reason="")
+        issues, code = lint_task("t", tmp_path)
+        assert any("override_reason" in i.message for i in issues if i.level == "error")
+        assert code == 1
 
 
 # ── Report formatting ─────────────────────────────────────────────────

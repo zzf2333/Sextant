@@ -46,7 +46,18 @@ TRACE_FILE_WHITELIST: frozenset[str] = frozenset({
     "review-build.md",
     "rca.md",
     "record.md",
+    "usage.json",
 })
+
+ARTIFACT_SEQUENCE: list[str] = [
+    "spec.md",
+    "review-spec.md",
+    "plan.md",
+    "review-plan.md",
+    "build-summary.md",
+    "review-build.md",
+    "record.md",
+]
 
 
 # ── Per-artifact field requirements ──────────────────────────────────

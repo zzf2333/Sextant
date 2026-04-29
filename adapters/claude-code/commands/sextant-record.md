@@ -108,12 +108,12 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
    If the CLI is not installed, skip this step silently.
 
-9. **Close the trace**: append to `.sextant/traces/index.md` (create if absent):
+8. **Close the trace**: append to `.sextant/traces/index.md` (create if absent):
    ```
    | <task_id> | <task_level> | <completed_at> | <one-line summary> |
    ```
 
-10. **Print final summary**:
+9. **Print final summary**:
    ```
    ── Task complete ─────────────────────────────────────
    Task:  <task_id>
@@ -131,3 +131,5 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 - Use `--full` for L2 tasks or whenever you want explicit control over what gets recorded.
 - These entries are exactly what the next `/sextant` or `/sextant-spec` will load as context.
   Write what will change a future engineer's judgment, not what happened.
+- Record always writes `record.md`. Fast close means no knowledge writebacks were needed,
+  not that the Record stage was skipped.

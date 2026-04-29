@@ -30,9 +30,10 @@ If no task description is provided, ask the user: "What do you want to accomplis
      date-slug (e.g. `2026-04-15-login-fix`). If that path already exists, append
      `-2`, `-3`, etc. until the path is unique.
 
-3. **For L0 tasks**: ask if the user wants to proceed with full Spec stage or use
-   `--force-l0` to skip Spec and Plan (going directly to Build). If skipping, create
-   a minimal trace record and print: "Run `/sextant-build` to implement directly."
+3. **For L0 tasks**: keep the trace visible. If the user explicitly forced L0 for a
+   micro-task, a minimal spec is acceptable, but it must still include
+   `forced_level: true` and a non-empty `override_reason`. Do not mark the task
+   complete here; even L0 work still needs Verify and Record before closure.
 
 4. **Load knowledge context**: load all project knowledge files before invoking the spec
    subagent. This is how past tasks inform new ones. Load and pass to subagent:
@@ -99,3 +100,5 @@ If no task description is provided, ask the user: "What do you want to accomplis
 - The spec reviewer runs automatically at the end of this command. Gate 1 (required
   by `/sextant-plan`) checks for the `review-spec.md` this command produces.
 - Do not proceed to Plan until the spec has been reviewer-approved.
+- Do not present Spec completion as task completion. A task is closed only after
+  Verify and Record produce `review-build.md` and `record.md`.

@@ -161,7 +161,12 @@ cd Sextant
 
 ## 当前状态
 
-**v0.0.8** — 知识文件目录整合版本。
+**当前版本：v0.0.8** — token/time 用量统计与知识目录打磨版本。
+
+**下一版本：v0.1.0 Dogfood Gate** — 验证 Claude Code adapter 的真实闭环。代码侧
+trace contract、lint 检查、指标门槛和 dogfood 报告模板已经就位；发布前必须满足
+`docs/dogfood.md` 里的真实证据门槛：至少 10 个真实任务、闭环率 >= 80%、
+reviewer 非空删除建议率 >= 50%、Verify 首次通过率 >= 60%、主动绕过率 <= 20%。
 
 | 组件                    | 状态                                                                                      |
 | ----------------------- | ----------------------------------------------------------------------------------------- |
@@ -172,7 +177,7 @@ cd Sextant
 | `adapters/claude-code/` | `/sextant` 主命令、5 个阶段命令、`/sextant-status`、`/sextant-init`、hooks（advisory/team/strict）、一键安装 |
 | `scripts/bootstrap.sh`  | 知识布局初始化脚本                                                                        |
 
-generic CLI 与 Trace 系统计划在 v0.2 实现。
+通用 LLM CLI 暂不进入 v0.1.0；等 Claude Code 闭环用真实 traces 证明后，再进入 v0.2。
 
 ---
 

@@ -51,14 +51,20 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
    If the CLI is not installed, skip this step silently.
 
-9. **Check scope_creep_flags**: if `scope_creep_flags` is non-empty, display each flag
+8. **Check scope_creep_flags**: if `scope_creep_flags` is non-empty, display each flag
    and ask: "These items were added beyond plan scope. Accept (amend plan), reject, or defer?"
    Do not proceed to verify until all flags are resolved.
 
-10. **Prompt for next step** (if no blocking flags):
+9. **Prompt for next step** (if no blocking flags):
    ```
    Build complete.
 
-   Run /sextant to verify and close this task.
+   Run /sextant to verify, review, and record this task.
    (Or /sextant-verify for explicit verification control.)
    ```
+
+## Notes
+
+- Build completion is only Gate 3 readiness. It is not task completion.
+- Do not skip `/sextant-verify` or `/sextant-record`; completed traces require
+  `review-build.md` and `record.md`.

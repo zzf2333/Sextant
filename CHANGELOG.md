@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-04-29
+
+### Added
+
+- `docs/trace-contract.md` — v0.1.0 trace structure contract documenting canonical
+  artifact order, complete vs. active traces, allowed sidecar files, and bypass
+  requirements.
+- `docs/dogfood.md` — v0.1.0 dogfood report template with release thresholds, task
+  table, reviewer intervention cases, and failure/recovery evidence.
+
+### Changed
+
+- `sextant lint` now enforces stage ordering: if a later trace artifact exists, all
+  earlier canonical artifacts must exist. A `record.md` therefore requires the full
+  Spec -> Review Spec -> Plan -> Review Plan -> Build -> Review Build chain.
+- `sextant lint` now treats `usage.json` as an allowed trace sidecar file instead of
+  warning that it is outside the trace whitelist.
+- `docs/metrics.md` now includes v0.1.0 release-readiness thresholds and links them
+  to the trace contract and dogfood report.
+- `/sextant` now documents one shared usage-capture rule for every subagent stage and
+  makes clear that Build or Verify completion is not task closure without Record.
+- Claude Code stage commands now use consistent Verify/Record wording and corrected
+  step numbering around usage capture, review validation, and trace closure.
+- README, Chinese README, quickstart, and roadmap now position v0.1.0 as the Dogfood
+  Gate release and defer generic runtime LLM CLI work until after real trace evidence.
+
 ## [0.0.8] - 2026-04-29
 
 ### Added

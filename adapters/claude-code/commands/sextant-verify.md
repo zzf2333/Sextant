@@ -86,11 +86,11 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
    If the CLI is not installed, skip this step silently.
 
-8. **Validate `deletion_proposals`**: the field must be present and non-empty (even if
+7. **Validate `deletion_proposals`**: the field must be present and non-empty (even if
    `none`). If missing, the review artifact is malformed — re-invoke the reviewer
    subagent once. If still missing, stop and report.
 
-9. **Report verdict**:
+8. **Report verdict**:
    If `rejected`: display conditions clearly. Print:
    ```
    Layer 2 failed: build reviewer rejected the diff.
@@ -100,5 +100,10 @@ If `task_id` is not provided, look for the most recent task directory in `.sexta
 
    If `approved` or `approved-with-conditions`: print `── Layer 2 passed ──`. Print:
    ```
-   Verify passed. Run /sextant to close this task, or /sextant-record for explicit control.
+   Verify passed. Run /sextant to record and close this task, or /sextant-record for explicit control.
    ```
+
+## Notes
+
+- Verify passing is Gate 4 readiness. It is not task completion.
+- A completed trace still requires `record.md`; do not stop after `review-build.md`.

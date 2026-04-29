@@ -103,6 +103,23 @@ sextant metrics --json
 **When to run**: Periodically (e.g., after every 5-10 completed tasks) to check for drift.
 Not on every task — the metrics need sample size to be meaningful.
 
+## v0.1.0 Release Readiness
+
+For v0.1.0, metrics are used together with the trace contract and dogfood report.
+They are release gates, not long-term product targets.
+
+| Signal | Threshold | How to verify |
+|---|---:|---|
+| Real dogfood tasks | >= 10 | Count real trace directories in `.sextant/traces/` |
+| Closed-loop completion rate | >= 80% | Completed trace has `record.md` after the full artifact chain |
+| Reviewer non-empty deletion proposal rate | >= 50% | `sextant metrics --since 30` |
+| Verify first-pass rate | >= 60% | Manual dogfood table in `docs/dogfood.md` |
+| Active bypass rate | <= 20% | `forced_level: true`, skip markers, or dogfood notes |
+| Average stage duration | <= 90 seconds | `sextant tokens --since 30` when `usage.json` is recorded |
+
+See `docs/trace-contract.md` for the structural definition of a complete trace and
+`docs/dogfood.md` for the release evidence template.
+
 ---
 
 ## Interpretation guidance
