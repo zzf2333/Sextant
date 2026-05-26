@@ -397,11 +397,12 @@ class DAGExecutor:
 
         return results
 
-    def _commit_worktree_changes(self, wt: WorktreeInfo, task_id: str) -> None:
+    def _commit_worktree_changes(self, wt: WorktreeInfo, task_id: str) -> bool:
         """Stage and commit all changes in the worktree to the task branch.
 
         This is critical: git merge only incorporates committed changes,
         so the Worker's uncommitted modifications would be lost otherwise.
+        Returns True if changes were successfully committed, False otherwise.
         """
         import subprocess
         try:
@@ -409,17 +410,29 @@ class DAGExecutor:
                 ["git", "add", "-A"],
                 cwd=wt.path, capture_output=True, text=True, timeout=30,
             ).check_returncode()
-            subprocess.run(
+
+            commit_proc = subprocess.run(
                 ["git", "commit", "-m", f"sextant: {task_id} — verified changes"],
                 cwd=wt.path, capture_output=True, text=True, timeout=30,
             )
+            if commit_proc.returncode != 0:
+                stderr = commit_proc.stderr.strip()
+                # "nothing to commit" is expected when the worktree is clean
+                # (e.g., Worker wrote no new files beyond what Sextant placed)
+                if "nothing to commit" in stderr:
+                    print(f"    {task_id}: no new changes to commit (worktree clean)")
+                    return False
+                # Genuine failure: no git identity, hook failure, etc.
+                print(f"    {task_id}: COMMIT FAILED — {stderr[:300]}")
+                return False
+
             print(f"    {task_id}: committed changes to {wt.branch}")
+            return True
+
         except subprocess.CalledProcessError as e:
-            # Non-fatal: commit may fail if no changes (clean worktree),
-            # or in edge cases. The merge will still pick up any pre-existing
-            # commits on the branch.
-            if "nothing to commit" not in e.stderr and e.stderr:
-                print(f"    Warning: failed to commit {task_id} changes: {e.stderr[:120]}")
+            # git add itself failed
+            print(f"    Warning: git add failed for {task_id}: {e.stderr[:120] if e.stderr else e}")
+            return False
 
     def _write_executor_instructions(
         self,

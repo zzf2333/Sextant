@@ -173,7 +173,18 @@ def _check_forbidden_paths(
     contract: TaskContract,
     wt: WorktreeInfo,
 ) -> None:
-    """Verify no file was modified outside allowed_paths or inside forbidden_paths."""
+    """Verify no file was modified outside allowed_paths or inside forbidden_paths.
+
+    Sextant's own runtime files (TASK_CONTRACT.md, EXECUTOR_INSTRUCTIONS.md,
+    .sextant-worktree-meta.json) are always excluded from boundary checks.
+    """
+    # Files Sextant itself writes — must never block verify
+    _SEXTANT_RUNTIME = {
+        "TASK_CONTRACT.md",
+        "EXECUTOR_INSTRUCTIONS.md",
+        ".sextant-worktree-meta.json",
+    }
+
     if not contract.allowed_paths:
         result.add_check("forbidden_paths", True, "no allowed_paths defined — skipping")
         return
@@ -182,6 +193,10 @@ def _check_forbidden_paths(
     violations: list[str] = []
 
     for f in changed:
+        # Always exclude Sextant's own runtime files
+        if f in _SEXTANT_RUNTIME:
+            continue
+
         # Check forbidden first (takes priority)
         if _matches_any_glob(f, contract.forbidden_paths):
             violations.append(f"modified forbidden path: {f}")
@@ -207,7 +222,11 @@ def _check_diff_size(
     max_files: int = 50,
     max_insertions: int = 1000,
 ) -> None:
-    """Check that the diff is not excessively large."""
+    """Check that the diff is not excessively large.
+
+    Counts both tracked diffs AND untracked files. A Worker can create
+    a large file without staging it, and git diff --stat alone would miss it.
+    """
     try:
         base_ref = _get_base_ref(wt.path, wt.base_branch)
         stat_result = subprocess.run(
@@ -219,21 +238,43 @@ def _check_diff_size(
         )
 
         output = stat_result.stdout.strip()
-        if not output:
-            result.add_check("diff_size", True, "no changes detected")
-            return
-
-        lines = output.splitlines()
+        lines = output.splitlines() if output else []
         file_count = len([l for l in lines if l.strip() and not l.startswith(" ")])
         last_line = lines[-1] if lines else ""
 
         # Parse the stat summary line: "X files changed, Y insertions(+), Z deletions(-)"
         insertions = 0
+        import re
         if "insertion" in last_line:
-            import re
             m = re.search(r"(\d+)\s+insertion", last_line)
             if m:
                 insertions = int(m.group(1))
+
+        # Also count untracked files (not yet staged).
+        # A Worker could drop a large file in an allowed path without git add,
+        # bypassing the diff stat entirely.
+        untracked = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
+            cwd=wt.path,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if untracked.returncode == 0:
+            ut_files = [f for f in untracked.stdout.strip().splitlines() if f.strip()]
+            file_count += len(ut_files)
+            # Estimate insertions = line count per untracked file
+            for uf in ut_files:
+                try:
+                    uf_path = wt.path / uf
+                    if uf_path.is_file():
+                        insertions += len(uf_path.read_text(encoding="utf-8", errors="ignore").splitlines())
+                except OSError:
+                    pass  # binary file, symlink, etc.
+
+        if not output and not untracked.stdout.strip():
+            result.add_check("diff_size", True, "no changes detected")
+            return
 
         warnings: list[str] = []
         if file_count > max_files:
