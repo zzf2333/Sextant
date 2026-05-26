@@ -171,8 +171,8 @@ def run_execute(args) -> int:
         print(f"    sextant review --task-id {task_id}")
         print(f"    sextant merge --task-id {task_id}")
     elif state.state == TaskState.LOCAL_FAILED:
-        print(f"    Fix errors in worktree, then re-run:")
-        print(f"    sextant execute --task-id {task_id}")
+        print(f"    Fix errors in worktree ({wt.path if 'wt' in dir() else '.sextant-worktrees/' + task_id}), then:")
+        print(f"    sextant verify --task-id {task_id}")
     else:
         print(f"    sextant status")
     return 0

@@ -60,9 +60,10 @@ def run_review_cmd(args) -> int:
     state = load_state(states_dir, task_id)
     wt = get_worktree_info(task_id, worktrees_dir)
 
-    # Transition to reviewing
-    state.transition_to(TaskState.REVIEWING, f"review started (backend: {backend})")
-    save_state(states_dir, state)
+    # Transition to reviewing (skip if already REVIEWING — file backend re-runs)
+    if state.state != TaskState.REVIEWING:
+        state.transition_to(TaskState.REVIEWING, f"review started (backend: {backend})")
+        save_state(states_dir, state)
 
     print(f"Review: {task_id} (stage: {stage}, backend: {backend})")
     print("")
@@ -98,8 +99,10 @@ def run_review_cmd(args) -> int:
         state.transition_to(TaskState.FAILED, "review rejected")
         print("  Task rejected — requires replanning")
     else:
-        # Pending — review not yet produced
-        state.transition_to(TaskState.REVIEWING, "awaiting review completion")
+        # Pending — review not yet produced (file backend: template created)
+        # Stay in REVIEWING; don't self-transition (state machine rejects it)
+        if state.state != TaskState.REVIEWING:
+            state.transition_to(TaskState.REVIEWING, "awaiting review completion")
         print("  Review pending — fill REVIEW.md and re-run:")
         print("    sextant review --task-id", task_id)
 

@@ -84,15 +84,14 @@ def validate_contract(
     return result
 
 
-def _get_changed_files(wt_path: Path) -> list[str]:
+def _get_changed_files(wt_path: Path, base_branch: str | None = None) -> list[str]:
     """Get list of changed files in the worktree relative to the base branch.
 
     Uses git merge-base to find the divergence point between the task
-    branch and main, then diffs against that base commit. This covers
-    all commits on the task branch, not just the last one.
+    branch and its base branch, then diffs against that base commit.
     """
     try:
-        base_ref = _get_base_ref(wt_path)
+        base_ref = _get_base_ref(wt_path, base_branch)
         result = subprocess.run(
             ["git", "diff", "--name-only", base_ref],
             cwd=wt_path,
@@ -121,17 +120,18 @@ def _has_commits(wt_path: Path) -> bool:
         return False
 
 
-def _get_base_ref(wt_path: Path) -> str:
-    """Find the merge-base commit for the task branch relative to main/master.
+def _get_base_ref(wt_path: Path, base_branch: str | None = None) -> str:
+    """Find the merge-base commit for the task branch relative to its base branch.
 
-    Returns the commit hash of the divergence point, which is the correct
-    base for computing the full diff of the task branch. Falls back to
-    'HEAD' if no merge-base is found (e.g. initial commit).
+    Uses the worktree's base_branch if provided; otherwise falls back to
+    main then master. Returns 'HEAD' if no merge-base is found.
     """
-    for base_branch in ("main", "master"):
+    branches = [base_branch] if base_branch else []
+    branches.extend(b for b in ("main", "master") if b not in branches)
+    for branch in branches:
         try:
             mb = subprocess.run(
-                ["git", "merge-base", "HEAD", base_branch],
+                ["git", "merge-base", "HEAD", branch],
                 cwd=wt_path,
                 capture_output=True,
                 text=True,
@@ -141,7 +141,6 @@ def _get_base_ref(wt_path: Path) -> str:
                 return mb.stdout.strip()
         except Exception:
             continue
-    # Last resort: diff against root
     return "HEAD"
 
 
@@ -163,7 +162,7 @@ def _check_forbidden_paths(
         result.add_check("forbidden_paths", True, "no allowed_paths defined — skipping")
         return
 
-    changed = _get_changed_files(wt.path)
+    changed = _get_changed_files(wt.path, wt.base_branch)
     violations: list[str] = []
 
     for f in changed:
@@ -194,7 +193,7 @@ def _check_diff_size(
 ) -> None:
     """Check that the diff is not excessively large."""
     try:
-        base_ref = _get_base_ref(wt.path)
+        base_ref = _get_base_ref(wt.path, wt.base_branch)
         stat_result = subprocess.run(
             ["git", "diff", "--stat", base_ref],
             cwd=wt.path,
@@ -254,7 +253,7 @@ def _check_dependency_drift(
         if not dep_path.exists():
             continue
         try:
-            base_ref = _get_base_ref(wt.path)
+            base_ref = _get_base_ref(wt.path, wt.base_branch)
             diff_result = subprocess.run(
                 ["git", "diff", base_ref, "--", dep_file],
                 cwd=wt.path,

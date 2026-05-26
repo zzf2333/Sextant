@@ -176,7 +176,12 @@ class DAGExecutor:
                     # Run global verify
                     result.global_verify = self._run_global_verify(result)
                 else:
-                    print("    Integration branch creation failed")
+                    print("    \u2717 Integration branch creation failed")
+                    result.global_verify = ValidationResult(
+                        task_id=f"integration/{self.dag.dag_id}",
+                        passed=False,
+                        errors=["Integration branch creation failed — check for uncommitted changes or merge conflicts"],
+                    )
             else:
                 print(f"    (dry-run) Would create integration/{self.dag.dag_id}")
 
@@ -291,12 +296,11 @@ class DAGExecutor:
         tasks: list[TaskNode],
         completed: set[str],
     ) -> list[TaskResult]:
-        """Execute multiple implementation tasks in parallel over multiple waves.
+        """Execute multiple implementation tasks respecting parallelizable flag.
 
-        Each wave collects all tasks whose dependencies are satisfied,
-        executes them concurrently, then re-checks remaining tasks.
-        This handles dependency chains: impl-b depends on impl-a →
-        wave 1 runs impl-a, wave 2 runs impl-b.
+        Non-parallelizable tasks run sequentially (one at a time).
+        Parallelizable tasks run concurrently in waves (respecting dependencies).
+        This matches the semantics of scheduler.get_parallel_groups().
         """
         results: list[TaskResult] = []
         remaining = list(tasks)
@@ -315,21 +319,38 @@ class DAGExecutor:
                     ))
                 break
 
+            # Split: non-parallelizable tasks run sequentially first
+            sequential = [t for t in ready if not t.parallelizable]
+            parallelizable = [t for t in ready if t.parallelizable]
+
+            # Execute non-parallelizable tasks one at a time
+            for task in sequential:
+                print(f"      Sequential: {task.task_id}")
+                tr = self._execute_single_task(task)
+                results.append(tr)
+                if tr.success:
+                    completed.add(task.task_id)
+
+            # Execute parallelizable tasks concurrently
+            if parallelizable:
+                if len(parallelizable) > 1:
+                    print(f"      Parallel ({len(parallelizable)} tasks, workers={self.max_workers})")
+                else:
+                    print(f"      Parallel: {parallelizable[0].task_id}")
+
+                with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                    future_map = {
+                        executor.submit(self._execute_single_task, task): task
+                        for task in parallelizable
+                    }
+                    for future in as_completed(future_map):
+                        tr = future.result()
+                        results.append(tr)
+                        if tr.success:
+                            completed.add(tr.task_id)
+
+            # Remove all tasks from this wave from remaining
             remaining = [t for t in remaining if t not in ready]
-
-            if len(ready) > 1:
-                print(f"      Wave ({len(ready)} tasks, parallel={self.max_workers})")
-
-            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                future_map = {
-                    executor.submit(self._execute_single_task, task): task
-                    for task in ready
-                }
-                for future in as_completed(future_map):
-                    tr = future.result()
-                    results.append(tr)
-                    if tr.success:
-                        completed.add(tr.task_id)
 
         return results
 

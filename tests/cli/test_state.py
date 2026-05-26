@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 import tempfile
+import pytest
 from pathlib import Path
 
 from cli.state import (
@@ -70,19 +71,32 @@ class TestTaskStateRecord:
         except ValueError:
             pass
 
-    def test_full_lifecycle(self):
-        record = TaskStateRecord(task_id="task-1")
+    def test_full_lifecycle_with_review(self):
+        """Test the single-task lifecycle: LOCAL_VERIFIED -> REVIEWING -> APPROVED -> MERGED."""
+        record = TaskStateRecord(task_id="task-r")
         transitions = [
             (TaskState.WORKTREE_CREATED, "created"),
             (TaskState.EXECUTING, "executing"),
             (TaskState.LOCAL_VERIFYING, "verifying"),
             (TaskState.LOCAL_VERIFIED, "local ok"),
+            (TaskState.REVIEWING, "review started"),  # LOCAL_VERIFIED → REVIEWING
+            (TaskState.APPROVED, "review approved"),
+            (TaskState.MERGED, "merged"),
         ]
         for state, reason in transitions:
             record.transition_to(state, reason)
+        assert record.state == TaskState.MERGED
 
-        assert record.state == TaskState.LOCAL_VERIFIED
-        assert len(record.state_history) == 4
+    def test_reviewing_self_transition_rejected(self):
+        """REVIEWING → REVIEWING self-transition must be rejected."""
+        record = TaskStateRecord(task_id="task-s")
+        record.transition_to(TaskState.WORKTREE_CREATED, "created")
+        record.transition_to(TaskState.EXECUTING, "executing")
+        record.transition_to(TaskState.LOCAL_VERIFYING, "verifying")
+        record.transition_to(TaskState.LOCAL_VERIFIED, "local ok")
+        record.transition_to(TaskState.REVIEWING, "review started")
+        with pytest.raises(ValueError, match="Invalid state transition"):
+            record.transition_to(TaskState.REVIEWING, "still reviewing")
 
 
 class TestStatePersistence:
