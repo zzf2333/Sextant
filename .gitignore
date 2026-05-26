@@ -19,3 +19,5 @@ __pycache__/
 *.pyc
 *.egg-info/
 /AGENTS.md
+docs/0.2.0-plan.md
+docs/0.2.0.md
