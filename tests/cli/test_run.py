@@ -245,3 +245,26 @@ class TestGateStatus:
             global_verify=ValidationResult(task_id="dag-fail", passed=False, errors=["test failed"]),
         )
         assert not r.all_passed
+
+
+class TestGateUpdate:
+    """DAG gate update after manual global verify."""
+
+    def test_update_gate_flips_global_verify(self):
+        from cli.verify import _update_dag_gate
+
+        with tempfile.TemporaryDirectory() as tmp:
+            states_dir = Path(tmp)
+            gates_path = states_dir / "dag-mydag.json"
+            gates_path.write_text(json.dumps({
+                "dag_id": "mydag",
+                "all_passed": False,
+                "global_verify_passed": False,
+                "tasks": [{"task_id": "a", "success": True}],
+            }))
+
+            _update_dag_gate("mydag", states_dir, passed=True)
+
+            updated = json.loads(gates_path.read_text())
+            assert updated["global_verify_passed"] is True
+            assert updated["all_passed"] is True  # tasks all succeeded + global passed

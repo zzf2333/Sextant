@@ -290,6 +290,11 @@ class DAGExecutor:
                 state.transition_to(TaskState.LOCAL_VERIFIED, "local verify passed")
                 self.on_progress(task.task_id, "passed", f"verified in {duration:.1f}s")
                 print(f"    {task.task_id}: \u2713 local verify passed ({duration:.1f}s)")
+
+                # Auto-commit worktree changes to the task branch.
+                # Without this, git merge sees an empty branch because
+                # the Worker's uncommitted changes would be lost.
+                self._commit_worktree_changes(wt, task.task_id)
             else:
                 state.error_count += 1
                 state.last_error = f"{verify_result.error_count} check(s) failed"
@@ -391,6 +396,30 @@ class DAGExecutor:
             remaining = [t for t in remaining if t not in ready]
 
         return results
+
+    def _commit_worktree_changes(self, wt: WorktreeInfo, task_id: str) -> None:
+        """Stage and commit all changes in the worktree to the task branch.
+
+        This is critical: git merge only incorporates committed changes,
+        so the Worker's uncommitted modifications would be lost otherwise.
+        """
+        import subprocess
+        try:
+            subprocess.run(
+                ["git", "add", "-A"],
+                cwd=wt.path, capture_output=True, text=True, timeout=30,
+            ).check_returncode()
+            subprocess.run(
+                ["git", "commit", "-m", f"sextant: {task_id} — verified changes"],
+                cwd=wt.path, capture_output=True, text=True, timeout=30,
+            )
+            print(f"    {task_id}: committed changes to {wt.branch}")
+        except subprocess.CalledProcessError as e:
+            # Non-fatal: commit may fail if no changes (clean worktree),
+            # or in edge cases. The merge will still pick up any pre-existing
+            # commits on the branch.
+            if "nothing to commit" not in e.stderr and e.stderr:
+                print(f"    Warning: failed to commit {task_id} changes: {e.stderr[:120]}")
 
     def _write_executor_instructions(
         self,

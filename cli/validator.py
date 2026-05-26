@@ -87,9 +87,11 @@ def validate_contract(
 def _get_changed_files(wt_path: Path, base_branch: str | None = None) -> list[str]:
     """Get list of changed files in the worktree relative to the base branch.
 
-    Uses git merge-base to find the divergence point between the task
-    branch and its base branch, then diffs against that base commit.
+    Includes both tracked diffs AND untracked files so that forbidden_path,
+    diff_size, and dependency_drift checks cannot be bypassed by omitting
+    'git add' on a newly-created forbidden file.
     """
+    files: list[str] = []
     try:
         base_ref = _get_base_ref(wt_path, base_branch)
         result = subprocess.run(
@@ -100,8 +102,22 @@ def _get_changed_files(wt_path: Path, base_branch: str | None = None) -> list[st
             timeout=30,
         )
         if result.returncode == 0:
-            return [f for f in result.stdout.strip().splitlines() if f.strip()]
-        return []
+            files.extend(f for f in result.stdout.strip().splitlines() if f.strip())
+
+        # Also include untracked files (not yet git add'd).
+        # A Worker could create a forbidden/dependency file without staging it,
+        # and a git-diff-only check would miss it entirely.
+        untracked = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
+            cwd=wt_path,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if untracked.returncode == 0:
+            files.extend(f for f in untracked.stdout.strip().splitlines() if f.strip())
+
+        return files
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return []
 

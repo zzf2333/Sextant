@@ -120,6 +120,12 @@ class TestTaskStateRecord:
         record.transition_to(TaskState.APPROVED, "approved")
         assert record.state == TaskState.APPROVED
 
+    def test_planned_to_global_verifying(self):
+        """PLANNED → GLOBAL_VERIFYING must be allowed (manual global verify)."""
+        record = TaskStateRecord(task_id="dag-gv")
+        record.transition_to(TaskState.GLOBAL_VERIFYING, "global verify started")
+        assert record.state == TaskState.GLOBAL_VERIFYING
+
 
 class TestStatePersistence:
     """State save/load tests."""

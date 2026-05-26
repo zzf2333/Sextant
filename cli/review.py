@@ -93,8 +93,8 @@ def run_review_cmd(args) -> int:
         print("  Next: sextant merge --task-id", task_id, " (address conditions first)")
     elif verdict == "changes-requested":
         state.transition_to(TaskState.LOCAL_FAILED, "review requested changes")
-        print("  Changes requested — return to execution")
-        print("  Next: sextant execute --task-id", task_id)
+        print("  Changes requested — fix in worktree, then re-verify:")
+        print("    sextant verify --task-id", task_id)
     elif verdict == "rejected":
         state.transition_to(TaskState.FAILED, "review rejected")
         print("  Task rejected — requires replanning")

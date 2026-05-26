@@ -68,6 +68,8 @@ def run_verify(args) -> int:
     if result.passed:
         if global_verify:
             state.transition_to(TaskState.GLOBAL_VERIFIED, "global verify passed")
+            # Also update the DAG gate so merge --integration sees the new status
+            _update_dag_gate(task_id, states_dir, passed=True)
         else:
             state.transition_to(TaskState.LOCAL_VERIFIED, "local verify passed")
     else:
@@ -89,6 +91,26 @@ def run_verify(args) -> int:
         print(f"    Fix errors and re-run: sextant verify --task-id {task_id}")
 
     return 0 if result.passed else 1
+
+
+def _update_dag_gate(dag_id: str, states_dir: Path, passed: bool) -> None:
+    """Update the DAG gate status file after manual global verify.
+
+    Without this, a user who fixes issues and re-runs 'sextant verify --global'
+    would still be blocked by the old gate at merge time.
+    """
+    import json
+    gate_path = states_dir / f"dag-{dag_id}.json"
+    if gate_path.exists():
+        try:
+            gate = json.loads(gate_path.read_text(encoding="utf-8"))
+            gate["global_verify_passed"] = passed
+            gate["all_passed"] = passed and all(
+                t.get("success", False) for t in gate.get("tasks", [])
+            )
+            gate_path.write_text(json.dumps(gate, indent=2), encoding="utf-8")
+        except (json.JSONDecodeError, OSError):
+            pass
 
 
 # ── Global verify helpers ─────────────────────────────────────────────

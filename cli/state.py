@@ -34,7 +34,7 @@ class TaskState(Enum):
 
 # Valid transitions — a task can only move to states in this set
 _VALID_TRANSITIONS: dict[TaskState, set[TaskState]] = {
-    TaskState.PLANNED: {TaskState.WORKTREE_CREATED, TaskState.CANCELLED},
+    TaskState.PLANNED: {TaskState.WORKTREE_CREATED, TaskState.GLOBAL_VERIFYING, TaskState.CANCELLED},
     TaskState.WORKTREE_CREATED: {TaskState.EXECUTING, TaskState.CANCELLED},
     TaskState.EXECUTING: {TaskState.LOCAL_VERIFYING, TaskState.FAILED, TaskState.CANCELLED},
     TaskState.LOCAL_VERIFYING: {TaskState.LOCAL_VERIFIED, TaskState.LOCAL_FAILED},
