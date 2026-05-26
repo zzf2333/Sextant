@@ -136,6 +136,14 @@ def create_worktree(
         cwd=repo_root,
     )
 
+    # Persist worktree metadata so list/get worktrees can recover base_branch
+    meta_path = worktree_path / ".sextant-worktree-meta.json"
+    import json
+    meta_path.write_text(json.dumps({
+        "task_id": task_id,
+        "base_branch": base_branch,
+    }), encoding="utf-8")
+
     return WorktreeInfo(
         task_id=task_id,
         path=worktree_path,
@@ -217,11 +225,23 @@ def list_worktrees(
             continue
         task_id = d.name
         branch_name = f"sextant/task/{task_id}"
+
+        # Read persisted base_branch from metadata file
+        base_branch = "main"  # fallback
+        meta_file = d / ".sextant-worktree-meta.json"
+        if meta_file.exists():
+            try:
+                import json
+                meta = json.loads(meta_file.read_text(encoding="utf-8"))
+                base_branch = meta.get("base_branch", "main")
+            except (json.JSONDecodeError, OSError):
+                pass
+
         wt = WorktreeInfo(
             task_id=task_id,
             path=d,
             branch=branch_name,
-            base_branch="main",
+            base_branch=base_branch,
             exists=True,
         )
         worktrees.append(wt)

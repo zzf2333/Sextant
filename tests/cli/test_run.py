@@ -1,9 +1,12 @@
 """Tests for cli.run — DAG executor and parallel execution."""
 from __future__ import annotations
+import tempfile
+import json
 from pathlib import Path
 from cli.run import (
     TaskResult,
     DAGResult,
+    DAGExecutor,
     _format_dag_summary,
     _format_results_summary,
 )
@@ -195,3 +198,50 @@ class TestFormatResultsSummary:
         )
         output = _format_results_summary(r)
         assert "integration/dag-3" in output
+
+
+class TestGateStatus:
+    """DAG gate status persistence tests."""
+
+    def test_save_and_load_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            states_dir = Path(tmp)
+            result = DAGResult(
+                dag_id="dag-gate",
+                results=[
+                    TaskResult(task_id="a", success=True),
+                    TaskResult(task_id="b", success=False, error="oops"),
+                ],
+                integration_branch="integration/dag-gate",
+                global_verify=ValidationResult(task_id="dag-gate", passed=False, errors=["test failed"]),
+            )
+            # Use the static method directly
+            gate_path = states_dir / "dag-dag-gate.json"
+            gate_path.parent.mkdir(parents=True, exist_ok=True)
+            gate_data = {
+                "dag_id": result.dag_id,
+                "all_passed": result.all_passed,
+                "global_verify_passed": result.global_verify.passed if result.global_verify else False,
+                "integration_branch": result.integration_branch,
+                "tasks": [{"task_id": r.task_id, "success": r.success, "error": r.error} for r in result.results],
+            }
+            gate_path.write_text(json.dumps(gate_data, indent=2), encoding="utf-8")
+
+            loaded = DAGExecutor.load_gate_status("dag-gate", states_dir)
+            assert loaded is not None
+            assert loaded["dag_id"] == "dag-gate"
+            assert loaded["global_verify_passed"] is False
+            assert loaded["all_passed"] is False
+            assert len(loaded["tasks"]) == 2
+
+    def test_load_missing_gate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            assert DAGExecutor.load_gate_status("nonexistent", Path(tmp)) is None
+
+    def test_all_passed_false_when_global_fails(self):
+        r = DAGResult(
+            dag_id="dag-fail",
+            results=[TaskResult(task_id="a", success=True)],
+            global_verify=ValidationResult(task_id="dag-fail", passed=False, errors=["test failed"]),
+        )
+        assert not r.all_passed

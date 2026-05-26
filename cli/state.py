@@ -45,7 +45,7 @@ _VALID_TRANSITIONS: dict[TaskState, set[TaskState]] = {
     TaskState.GLOBAL_VERIFYING: {TaskState.GLOBAL_VERIFIED, TaskState.GLOBAL_FAILED},
     TaskState.GLOBAL_VERIFIED: {TaskState.REVIEWING, TaskState.QUEUED_FOR_INTEGRATION},  # allow re-queue from global verify
     TaskState.GLOBAL_FAILED: {TaskState.EXECUTING, TaskState.FAILED, TaskState.CANCELLED},
-    TaskState.REVIEWING: {TaskState.APPROVED, TaskState.FAILED, TaskState.CANCELLED},
+    TaskState.REVIEWING: {TaskState.APPROVED, TaskState.LOCAL_FAILED, TaskState.FAILED, TaskState.CANCELLED},
     TaskState.APPROVED: {TaskState.MERGED},
     TaskState.MERGED: set(),       # terminal
     TaskState.CANCELLED: set(),    # terminal

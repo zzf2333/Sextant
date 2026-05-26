@@ -186,7 +186,45 @@ class DAGExecutor:
                 print(f"    (dry-run) Would create integration/{self.dag.dag_id}")
 
         result.total_duration_seconds = time.time() - start_time
+
+        # Persist DAG gate status for merge gate enforcement
+        self._save_gate_status(result)
+
         return result
+
+    def _save_gate_status(self, result: DAGResult) -> None:
+        """Save DAG result as gate status for merge enforcement."""
+        import json
+        gate_path = self.states_dir / f"dag-{self.dag.dag_id}.json"
+        gate_path.parent.mkdir(parents=True, exist_ok=True)
+        gate_data = {
+            "dag_id": self.dag.dag_id,
+            "all_passed": result.all_passed,
+            "global_verify_passed": result.global_verify.passed if result.global_verify else False,
+            "integration_branch": result.integration_branch,
+            "total_duration_seconds": result.total_duration_seconds,
+            "tasks": [
+                {
+                    "task_id": r.task_id,
+                    "success": r.success,
+                    "error": r.error,
+                }
+                for r in result.results
+            ],
+        }
+        gate_path.write_text(json.dumps(gate_data, indent=2), encoding="utf-8")
+
+    @staticmethod
+    def load_gate_status(dag_id: str, states_dir: Path) -> dict | None:
+        """Load persisted gate status for a DAG, if it exists."""
+        import json
+        gate_path = states_dir / f"dag-{dag_id}.json"
+        if not gate_path.exists():
+            return None
+        try:
+            return json.loads(gate_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return None
 
     def _execute_single_task(self, task: TaskNode) -> TaskResult:
         """Execute a single task in its own worktree."""

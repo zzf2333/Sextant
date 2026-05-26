@@ -308,12 +308,53 @@ def _merge_integration(
     force: bool,
     dry_run: bool,
 ) -> int:
-    """Merge an integration branch into the target branch."""
-    import subprocess
+    """Merge an integration branch into the target branch.
+
+    Requires the DAG gate status to confirm:
+      1. Global verify passed
+      2. All tasks are APPROVED (or force bypass)
+    """
+    import subprocess, json
     from cli.worktree import get_repo_root, has_uncommitted_changes
 
     integration_branch = f"integration/{dag_id}"
     repo_root = get_repo_root()
+
+    # ── Gate check: DAG status must confirm global verify + review ──
+    states_dir = Path(".sextant/states").resolve()
+    gate_path = states_dir / f"dag-{dag_id}.json"
+    if gate_path.exists():
+        try:
+            gate = json.loads(gate_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            gate = None
+    else:
+        gate = None
+
+    if not gate:
+        print(f"  Warning: no gate status found for DAG '{dag_id}'")
+        print("  Run 'sextant run' first to create gate status.")
+        if not force:
+            return 1
+    else:
+        if not gate.get("global_verify_passed", False) and not force:
+            print(f"  DAG gate blocked: global verify not passed")
+            print("  Re-run 'sextant run' to fix, or use --force to bypass.")
+            return 1
+        # Check each task is APPROVED
+        from cli.state import load_state, TaskState
+        unapproved = []
+        for t in gate.get("tasks", []):
+            st = load_state(states_dir, t["task_id"])
+            if st.state not in (TaskState.APPROVED, TaskState.MERGED):
+                unapproved.append(f"{t['task_id']} [{st.state.value}]")
+        if unapproved and not force:
+            print("  DAG gate blocked: unapproved tasks:")
+            for u in unapproved:
+                print(f"    - {u}")
+            print("  Run 'sextant review --task-id <id>' for each, or use --force.")
+            return 1
+        print(f"  Gate check passed: global_verify=OK, {len(gate.get('tasks',[]))} task(s) approved")
 
     # Check integration branch exists
     try:

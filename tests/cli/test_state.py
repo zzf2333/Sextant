@@ -98,6 +98,28 @@ class TestTaskStateRecord:
         with pytest.raises(ValueError, match="Invalid state transition"):
             record.transition_to(TaskState.REVIEWING, "still reviewing")
 
+    def test_reviewing_to_local_failed(self):
+        """REVIEWING → LOCAL_FAILED must be allowed (changes-requested from review)."""
+        record = TaskStateRecord(task_id="task-cr")
+        record.transition_to(TaskState.WORKTREE_CREATED, "created")
+        record.transition_to(TaskState.EXECUTING, "executing")
+        record.transition_to(TaskState.LOCAL_VERIFYING, "verifying")
+        record.transition_to(TaskState.LOCAL_VERIFIED, "local ok")
+        record.transition_to(TaskState.REVIEWING, "review started")
+        record.transition_to(TaskState.LOCAL_FAILED, "changes requested")
+        assert record.state == TaskState.LOCAL_FAILED
+
+    def test_reviewing_to_approved(self):
+        """REVIEWING → APPROVED must be allowed."""
+        record = TaskStateRecord(task_id="task-ok")
+        record.transition_to(TaskState.WORKTREE_CREATED, "created")
+        record.transition_to(TaskState.EXECUTING, "executing")
+        record.transition_to(TaskState.LOCAL_VERIFYING, "verifying")
+        record.transition_to(TaskState.LOCAL_VERIFIED, "local ok")
+        record.transition_to(TaskState.REVIEWING, "review started")
+        record.transition_to(TaskState.APPROVED, "approved")
+        assert record.state == TaskState.APPROVED
+
 
 class TestStatePersistence:
     """State save/load tests."""
