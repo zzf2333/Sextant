@@ -39,6 +39,7 @@ from cli.worktree import (
     list_worktrees,
     get_repo_root,
     has_uncommitted_changes,
+    SEXTANT_RUNTIME_FILES,
 )
 from cli.validator import validate_contract, format_validation, ValidationResult
 
@@ -287,17 +288,15 @@ class DAGExecutor:
             duration = time.time() - start
 
             if verify_result.passed:
-                state.transition_to(TaskState.LOCAL_VERIFIED, "local verify passed")
-                self.on_progress(task.task_id, "passed", f"verified in {duration:.1f}s")
-                print(f"    {task.task_id}: \u2713 local verify passed ({duration:.1f}s)")
-
-                # Auto-commit worktree changes to the task branch.
-                # Without this, git merge sees an empty branch because
-                # the Worker's uncommitted changes would be lost.
+                # Commit MUST succeed before we transition to LOCAL_VERIFIED.
+                # If commit fails, the integration merge will be empty —
+                # local verify is void.
                 committed = self._commit_worktree_changes(wt, task.task_id)
                 if committed is False:
                     # Real commit failure: no git identity, hook failure, etc.
-                    state.transition_to(TaskState.LOCAL_FAILED, "commit failed — changes not captured")
+                    state.error_count += 1
+                    state.last_error = "commit failed — changes not captured"
+                    state.transition_to(TaskState.LOCAL_FAILED, "commit failed")
                     self.on_progress(task.task_id, "failed", "commit failed")
                     print(f"    {task.task_id}: \u2717 commit failed — local verify is void")
                     save_state(self.states_dir, state)
@@ -309,6 +308,11 @@ class DAGExecutor:
                         error="commit failed — configure git identity and re-run",
                         duration_seconds=duration,
                     )
+
+                # commit succeeded (True) or clean worktree (None) — either is fine
+                state.transition_to(TaskState.LOCAL_VERIFIED, "local verify passed")
+                self.on_progress(task.task_id, "passed", f"verified in {duration:.1f}s")
+                print(f"    {task.task_id}: \u2713 local verify passed ({duration:.1f}s)")
             else:
                 state.error_count += 1
                 state.last_error = f"{verify_result.error_count} check(s) failed"
@@ -412,51 +416,59 @@ class DAGExecutor:
         return results
 
     def _commit_worktree_changes(self, wt: WorktreeInfo, task_id: str) -> bool | None:
-        """Stage and commit all changes in the worktree to the task branch.
+        """Stage and commit Worker changes to the task branch.
+
+        Uses git diff --cached --quiet to detect staged changes before
+        committing — no stderr parsing needed for "nothing to commit".
 
         Returns:
             True  — commit succeeded (worker changes captured)
             False — commit failed (git identity, hook, etc.) — task MUST fail
-            None  — nothing to commit (clean worktree, no worker output)
+            None  — no staged changes after filtering (clean worktree, OK)
         """
         import subprocess
-        # Files Sextant itself writes — must never be committed
-        _SEXTANT_RUNTIME = {"TASK_CONTRACT.md", "EXECUTOR_INSTRUCTIONS.md", ".sextant-worktree-meta.json"}
+
         try:
             subprocess.run(
                 ["git", "add", "-A"],
                 cwd=wt.path, capture_output=True, text=True, timeout=30,
             ).check_returncode()
 
-            # Unstage Sextant's own runtime files — they must never be committed
-            # because they would leak into the task branch and be merged to main.
-            for rf in _SEXTANT_RUNTIME:
+            # Unstage Sextant's own runtime files — never committed to branch
+            for rf in SEXTANT_RUNTIME_FILES:
                 subprocess.run(
                     ["git", "reset", "--", rf],
                     cwd=wt.path, capture_output=True, text=True, timeout=10,
                 )
 
+            # Check whether any real worker changes are staged
+            diff_proc = subprocess.run(
+                ["git", "diff", "--cached", "--quiet"],
+                cwd=wt.path, capture_output=True, text=True, timeout=10,
+            )
+            if diff_proc.returncode == 0:
+                # No staged changes — clean worktree (only runtime files were there)
+                print(f"    {task_id}: no worker changes to commit (worktree clean)")
+                return None
+            if diff_proc.returncode != 1:
+                # --quiet exits 1 when there ARE changes; anything else is an error
+                print(f"    {task_id}: git diff --cached failed (exit {diff_proc.returncode})")
+                return False
+
+            # Worker changes detected — commit them
             commit_proc = subprocess.run(
                 ["git", "commit", "-m", f"sextant: {task_id} — verified changes"],
                 cwd=wt.path, capture_output=True, text=True, timeout=30,
             )
             if commit_proc.returncode != 0:
-                stderr = commit_proc.stderr.strip()
-                # "nothing to commit" is expected when the worktree is clean
-                # (e.g., Worker wrote no new files beyond what Sextant placed)
-                if "nothing to commit" in stderr:
-                    print(f"    {task_id}: no new changes to commit (worktree clean)")
-                    return None
-                # Genuine failure: no git identity, hook failure, etc.
-                print(f"    {task_id}: COMMIT FAILED — {stderr[:300]}")
+                print(f"    {task_id}: COMMIT FAILED — {commit_proc.stderr.strip()[:300]}")
                 return False
 
             print(f"    {task_id}: committed changes to {wt.branch}")
             return True
 
-        except subprocess.CalledProcessError as e:
-            # git add itself failed
-            print(f"    Warning: git add failed for {task_id}: {e.stderr[:120] if e.stderr else e}")
+        except subprocess.CalledProcessError:
+            print(f"    Warning: git add failed for {task_id}")
             return False
 
     def _write_executor_instructions(

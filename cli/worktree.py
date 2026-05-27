@@ -17,6 +17,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+# ── Shared constants ──────────────────────────────────────────────────
+# Written by run/execute as scaffolding — NOT worker output.
+# These files must be excluded from boundary checks, diff counts,
+# and commits into the task branch.
+SEXTANT_RUNTIME_FILES = {
+    "TASK_CONTRACT.md",
+    "EXECUTOR_INSTRUCTIONS.md",
+    ".sextant-worktree-meta.json",
+}
+
 
 @dataclass
 class WorktreeInfo:

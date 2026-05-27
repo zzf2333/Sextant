@@ -17,16 +17,7 @@ from pathlib import Path
 from typing import Optional
 
 from cli.contract import TaskContract, parse_contract
-from cli.worktree import WorktreeInfo, get_worktree_info
-
-# ── Sextant runtime files ─────────────────────────────────────────────
-# Written by run/execute as scaffolding — NOT worker output.
-# Must be excluded from forbidden_path, diff_size, and commits.
-_SEXTANT_RUNTIME = {
-    "TASK_CONTRACT.md",
-    "EXECUTOR_INSTRUCTIONS.md",
-    ".sextant-worktree-meta.json",
-}
+from cli.worktree import WorktreeInfo, get_worktree_info, SEXTANT_RUNTIME_FILES
 
 
 @dataclass
@@ -196,7 +187,7 @@ def _check_forbidden_paths(
 
     for f in changed:
         # Always exclude Sextant's own runtime files
-        if f in _SEXTANT_RUNTIME:
+        if f in SEXTANT_RUNTIME_FILES:
             continue
 
         # Check forbidden first (takes priority)
@@ -266,7 +257,7 @@ def _check_diff_size(
         if untracked.returncode == 0:
             ut_files = [
                 f for f in untracked.stdout.strip().splitlines()
-                if f.strip() and f not in _SEXTANT_RUNTIME
+                if f.strip() and f not in SEXTANT_RUNTIME_FILES
             ]
             file_count += len(ut_files)
             # Estimate insertions = line count per untracked file
@@ -278,7 +269,7 @@ def _check_diff_size(
                 except OSError:
                     pass  # binary file, symlink, etc.
 
-        if not output and not untracked.stdout.strip():
+        if not output and not ut_files:
             result.add_check("diff_size", True, "no changes detected")
             return
 
