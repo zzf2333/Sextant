@@ -160,6 +160,7 @@ def run_execute(args) -> int:
                         state.error_count += 1
                         state.last_error = f"commit failed — {detail[:120]}"
                         state.transition_to(TaskState.LOCAL_FAILED, "commit failed")
+                        print(f"    Commit failed: {detail[:120]}")
                     else:
                         state.transition_to(TaskState.LOCAL_VERIFIED, "all checks passed")
                 else:
@@ -188,7 +189,10 @@ def run_execute(args) -> int:
         print(f"    sextant verify --task-id {task_id}")
     else:
         print(f"    sextant status")
-    return 0
+
+    # Only return 0 when the task is LOCAL_VERIFIED (or dry-run).
+    # Any other state (LOCAL_FAILED, PLANNED, etc.) is a non-zero exit.
+    return 0 if dry_run or state.state == TaskState.LOCAL_VERIFIED else 1
 
 
 def _execute_reasonix(
