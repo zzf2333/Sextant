@@ -19,6 +19,15 @@ from typing import Optional
 from cli.contract import TaskContract, parse_contract
 from cli.worktree import WorktreeInfo, get_worktree_info
 
+# ── Sextant runtime files ─────────────────────────────────────────────
+# Written by run/execute as scaffolding — NOT worker output.
+# Must be excluded from forbidden_path, diff_size, and commits.
+_SEXTANT_RUNTIME = {
+    "TASK_CONTRACT.md",
+    "EXECUTOR_INSTRUCTIONS.md",
+    ".sextant-worktree-meta.json",
+}
+
 
 @dataclass
 class ValidationResult:
@@ -178,13 +187,6 @@ def _check_forbidden_paths(
     Sextant's own runtime files (TASK_CONTRACT.md, EXECUTOR_INSTRUCTIONS.md,
     .sextant-worktree-meta.json) are always excluded from boundary checks.
     """
-    # Files Sextant itself writes — must never block verify
-    _SEXTANT_RUNTIME = {
-        "TASK_CONTRACT.md",
-        "EXECUTOR_INSTRUCTIONS.md",
-        ".sextant-worktree-meta.json",
-    }
-
     if not contract.allowed_paths:
         result.add_check("forbidden_paths", True, "no allowed_paths defined — skipping")
         return
@@ -253,6 +255,7 @@ def _check_diff_size(
         # Also count untracked files (not yet staged).
         # A Worker could drop a large file in an allowed path without git add,
         # bypassing the diff stat entirely.
+        # Sextant runtime files are excluded — they're scaffolding, not worker output.
         untracked = subprocess.run(
             ["git", "ls-files", "--others", "--exclude-standard"],
             cwd=wt.path,
@@ -261,7 +264,10 @@ def _check_diff_size(
             timeout=10,
         )
         if untracked.returncode == 0:
-            ut_files = [f for f in untracked.stdout.strip().splitlines() if f.strip()]
+            ut_files = [
+                f for f in untracked.stdout.strip().splitlines()
+                if f.strip() and f not in _SEXTANT_RUNTIME
+            ]
             file_count += len(ut_files)
             # Estimate insertions = line count per untracked file
             for uf in ut_files:

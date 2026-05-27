@@ -294,7 +294,21 @@ class DAGExecutor:
                 # Auto-commit worktree changes to the task branch.
                 # Without this, git merge sees an empty branch because
                 # the Worker's uncommitted changes would be lost.
-                self._commit_worktree_changes(wt, task.task_id)
+                committed = self._commit_worktree_changes(wt, task.task_id)
+                if committed is False:
+                    # Real commit failure: no git identity, hook failure, etc.
+                    state.transition_to(TaskState.LOCAL_FAILED, "commit failed — changes not captured")
+                    self.on_progress(task.task_id, "failed", "commit failed")
+                    print(f"    {task.task_id}: \u2717 commit failed — local verify is void")
+                    save_state(self.states_dir, state)
+                    return TaskResult(
+                        task_id=task.task_id,
+                        success=False,
+                        worktree=wt,
+                        verify_result=verify_result,
+                        error="commit failed — configure git identity and re-run",
+                        duration_seconds=duration,
+                    )
             else:
                 state.error_count += 1
                 state.last_error = f"{verify_result.error_count} check(s) failed"
@@ -397,19 +411,30 @@ class DAGExecutor:
 
         return results
 
-    def _commit_worktree_changes(self, wt: WorktreeInfo, task_id: str) -> bool:
+    def _commit_worktree_changes(self, wt: WorktreeInfo, task_id: str) -> bool | None:
         """Stage and commit all changes in the worktree to the task branch.
 
-        This is critical: git merge only incorporates committed changes,
-        so the Worker's uncommitted modifications would be lost otherwise.
-        Returns True if changes were successfully committed, False otherwise.
+        Returns:
+            True  — commit succeeded (worker changes captured)
+            False — commit failed (git identity, hook, etc.) — task MUST fail
+            None  — nothing to commit (clean worktree, no worker output)
         """
         import subprocess
+        # Files Sextant itself writes — must never be committed
+        _SEXTANT_RUNTIME = {"TASK_CONTRACT.md", "EXECUTOR_INSTRUCTIONS.md", ".sextant-worktree-meta.json"}
         try:
             subprocess.run(
                 ["git", "add", "-A"],
                 cwd=wt.path, capture_output=True, text=True, timeout=30,
             ).check_returncode()
+
+            # Unstage Sextant's own runtime files — they must never be committed
+            # because they would leak into the task branch and be merged to main.
+            for rf in _SEXTANT_RUNTIME:
+                subprocess.run(
+                    ["git", "reset", "--", rf],
+                    cwd=wt.path, capture_output=True, text=True, timeout=10,
+                )
 
             commit_proc = subprocess.run(
                 ["git", "commit", "-m", f"sextant: {task_id} — verified changes"],
@@ -421,7 +446,7 @@ class DAGExecutor:
                 # (e.g., Worker wrote no new files beyond what Sextant placed)
                 if "nothing to commit" in stderr:
                     print(f"    {task_id}: no new changes to commit (worktree clean)")
-                    return False
+                    return None
                 # Genuine failure: no git identity, hook failure, etc.
                 print(f"    {task_id}: COMMIT FAILED — {stderr[:300]}")
                 return False
