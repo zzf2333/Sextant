@@ -34,6 +34,7 @@ from cli.worktree import (
     remove_worktree,
     get_worktree_info,
 )
+from cli.task_commit import commit_worker_changes
 
 
 def run_execute(args) -> int:
@@ -150,7 +151,19 @@ def run_execute(args) -> int:
             print(format_validation(result))
 
             if result.passed:
-                state.transition_to(TaskState.LOCAL_VERIFIED, "all checks passed")
+                # Commit Worker changes before transitioning to LOCAL_VERIFIED.
+                # Same semantics as DAG run — verify + commit = success.
+                wt_verify = get_worktree_info(task_id, worktrees_dir)
+                if wt_verify:
+                    committed, detail = commit_worker_changes(wt_verify.path, task_id)
+                    if committed is False:
+                        state.error_count += 1
+                        state.last_error = f"commit failed — {detail[:120]}"
+                        state.transition_to(TaskState.LOCAL_FAILED, "commit failed")
+                    else:
+                        state.transition_to(TaskState.LOCAL_VERIFIED, "all checks passed")
+                else:
+                    state.transition_to(TaskState.LOCAL_VERIFIED, "all checks passed")
             else:
                 state.error_count += 1
                 state.last_error = f"{result.error_count} validation check(s) failed"

@@ -268,3 +268,105 @@ class TestGateUpdate:
             updated = json.loads(gates_path.read_text())
             assert updated["global_verify_passed"] is True
             assert updated["all_passed"] is True  # tasks all succeeded + global passed
+
+
+class TestCommitWorkerChanges:
+    """Shared commit helper in cli/task_commit.py."""
+
+    def test_only_runtime_files_returns_none(self, tmp_path):
+        """Clean worktree with only Sextant runtime files → None."""
+        from cli.task_commit import commit_worker_changes
+        import subprocess
+
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.email", "test@test"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+        (repo / "dummy").write_text("x")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True)
+
+        # Create only Sextant runtime files
+        (repo / "TASK_CONTRACT.md").write_text("# contract")
+        (repo / "EXECUTOR_INSTRUCTIONS.md").write_text("# instructions")
+        (repo / ".sextant-worktree-meta.json").write_text("{}")
+
+        committed, detail = commit_worker_changes(repo, "test-task")
+        assert committed is None, f"Expected None, got {committed}: {detail}"
+        assert "no worker changes" in detail
+
+    def test_commit_failure_returns_false(self, tmp_path):
+        """Commit fails (blocked by pre-commit hook) → False."""
+        from cli.task_commit import commit_worker_changes
+        import subprocess, stat
+
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.email", "test@test"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+        (repo / "dummy").write_text("x")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True)
+
+        # Install a pre-commit hook that always fails
+        hooks_dir = repo / ".git" / "hooks"
+        hook = hooks_dir / "pre-commit"
+        hook.write_text("#!/bin/sh\necho BLOCKED >&2\nexit 1\n")
+        hook.chmod(hook.stat().st_mode | stat.S_IEXEC)
+
+        (repo / "worker_output.py").write_text("print(1)")
+        committed, detail = commit_worker_changes(repo, "test-task")
+        assert committed is False, f"Expected False, got {committed}: {detail}"
+        assert "BLOCKED" in detail or "hook" in detail.lower()
+
+    def test_real_changes_returns_true(self, tmp_path):
+        """Real Worker changes → True."""
+        from cli.task_commit import commit_worker_changes
+        import subprocess
+
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.email", "test@test"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+        (repo / "dummy").write_text("x")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True)
+        (repo / "worker_output.py").write_text("print(1)")
+
+        committed, detail = commit_worker_changes(repo, "test-task")
+        assert committed is True, f"Expected True, got {committed}: {detail}"
+
+    def test_runtime_files_excluded_from_commit(self, tmp_path):
+        """Worker output + runtime files → only worker output committed."""
+        from cli.task_commit import commit_worker_changes
+        import subprocess
+
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.email", "test@test"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+        (repo / "base").write_text("x")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True)
+
+        # Worker output + runtime files
+        (repo / "worker.py").write_text("print(1)")
+        (repo / "TASK_CONTRACT.md").write_text("# contract")
+        (repo / "EXECUTOR_INSTRUCTIONS.md").write_text("# inst")
+
+        committed, detail = commit_worker_changes(repo, "test-task")
+        assert committed is True, f"Expected True, got {committed}: {detail}"
+
+        # Verify TASK_CONTRACT.md is NOT in the commit
+        show = subprocess.run(
+            ["git", "show", "--name-only", "--pretty=format:", "HEAD"],
+            cwd=repo, capture_output=True, text=True,
+        )
+        committed_files = show.stdout.strip().splitlines()
+        assert "worker.py" in committed_files, f"worker.py not in commit: {committed_files}"
+        assert "TASK_CONTRACT.md" not in committed_files, f"TASK_CONTRACT.md leaked: {committed_files}"
+        assert "EXECUTOR_INSTRUCTIONS.md" not in committed_files, f"EXECUTOR_INSTRUCTIONS.md leaked"

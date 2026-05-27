@@ -254,20 +254,26 @@ def _check_diff_size(
             text=True,
             timeout=10,
         )
-        if untracked.returncode == 0:
-            ut_files = [
-                f for f in untracked.stdout.strip().splitlines()
-                if f.strip() and f not in SEXTANT_RUNTIME_FILES
-            ]
-            file_count += len(ut_files)
-            # Estimate insertions = line count per untracked file
-            for uf in ut_files:
-                try:
-                    uf_path = wt.path / uf
-                    if uf_path.is_file():
-                        insertions += len(uf_path.read_text(encoding="utf-8", errors="ignore").splitlines())
-                except OSError:
-                    pass  # binary file, symlink, etc.
+        if untracked.returncode != 0:
+            result.add_check(
+                "diff_size", False,
+                f"unable to list untracked files: {untracked.stderr.strip()[:120]}"
+            )
+            return
+
+        ut_files = [
+            f for f in untracked.stdout.strip().splitlines()
+            if f.strip() and f not in SEXTANT_RUNTIME_FILES
+        ]
+        file_count += len(ut_files)
+        # Estimate insertions = line count per untracked file
+        for uf in ut_files:
+            try:
+                uf_path = wt.path / uf
+                if uf_path.is_file():
+                    insertions += len(uf_path.read_text(encoding="utf-8", errors="ignore").splitlines())
+            except OSError:
+                pass  # binary file, symlink, etc.
 
         if not output and not ut_files:
             result.add_check("diff_size", True, "no changes detected")
@@ -295,51 +301,40 @@ def _check_dependency_drift(
     contract: TaskContract,
     wt: WorktreeInfo,
 ) -> None:
-    """Check that no new dependencies were added outside the contract."""
-    # Check common dependency files
+    """Check that no new dependencies were added outside the contract.
+
+    Uses _get_changed_files() so both tracked and untracked dependency
+    files are detected — a Worker can't bypass this gate by omitting git add.
+    """
     dep_files = [
         "package.json", "pyproject.toml", "requirements.txt",
         "go.mod", "Cargo.toml", "Gemfile", "composer.json",
     ]
+    changed = set(_get_changed_files(wt.path, wt.base_branch))
 
     for dep_file in dep_files:
-        dep_path = wt.path / dep_file
-        if not dep_path.exists():
+        if dep_file not in changed:
             continue
-        try:
-            base_ref = _get_base_ref(wt.path, wt.base_branch)
-            diff_result = subprocess.run(
-                ["git", "diff", base_ref, "--", dep_file],
-                cwd=wt.path,
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-            if diff_result.returncode != 0 or not diff_result.stdout.strip():
-                continue
 
-            # Check if the dep file is in forbidden_paths
-            if _matches_any_glob(dep_file, contract.forbidden_paths):
-                result.add_check(
-                    "dependency_drift", False,
-                    f"modified forbidden dependency file: {dep_file}"
-                )
-                return
-
-            # If dep file is in allowed_paths, it's OK
-            if _matches_any_glob(dep_file, contract.allowed_paths):
-                result.add_check("dependency_drift", True, f"{dep_file} modified (in allowed_paths)")
-                return
-
-            # Otherwise, warn
+        # Check if the dep file is in forbidden_paths
+        if _matches_any_glob(dep_file, contract.forbidden_paths):
             result.add_check(
                 "dependency_drift", False,
-                f"{dep_file} modified — not in allowed_paths or forbidden_paths"
+                f"modified forbidden dependency file: {dep_file}"
             )
             return
 
-        except Exception:
-            continue
+        # If dep file is in allowed_paths, it's OK
+        if _matches_any_glob(dep_file, contract.allowed_paths):
+            result.add_check("dependency_drift", True, f"{dep_file} modified (in allowed_paths)")
+            return
+
+        # Otherwise, warn
+        result.add_check(
+            "dependency_drift", False,
+            f"{dep_file} modified — not in allowed_paths or forbidden_paths"
+        )
+        return
 
     result.add_check("dependency_drift", True, "no dependency files modified")
 

@@ -195,3 +195,46 @@ class TestContractParsing:
         assert parsed is not None
         assert "base-task" in parsed.depends_on
         assert "api-task" in parsed.depends_on
+
+
+class TestDependencyDrift:
+    """_check_dependency_drift catches untracked dependency files."""
+
+    def test_untracked_requirements_txt_detected(self, tmp_path):
+        """Untracked requirements.txt should be caught — not just tracked diffs."""
+        import subprocess
+        from cli.contract import TaskContract
+        from cli.worktree import WorktreeInfo
+        from cli.validator import ValidationResult, _check_dependency_drift
+
+        repo = tmp_path / "repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.email", "t@t"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "T"], cwd=repo, check=True)
+        (repo / "base.py").write_text("x")
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True)
+
+        # Create an UNTRACKED requirements.txt — not git add'd
+        (repo / "requirements.txt").write_text("new-dep==1.0\n")
+
+        contract = TaskContract(
+            task_id="drift-test",
+            objective="test",
+            allowed_paths=["src/**"],
+            acceptance=["true"],
+        )
+        wt = WorktreeInfo(
+            task_id="drift-test", path=repo, branch="main",
+            base_branch="main", exists=True,
+        )
+        result = ValidationResult(task_id="drift-test", passed=True)
+        _check_dependency_drift(result, contract, wt)
+
+        # Should detect the untracked requirements.txt
+        assert not result.passed
+        assert any(
+            "dependency_drift" in c["name"] and not c["passed"]
+            for c in result.checks
+        ), f"Expected dependency_drift failure, got: {result.checks}"
